@@ -1,294 +1,62 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Star Online</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: url('A_digital_interface_screenshot_of_Star_TV_Online\'s.png') no-repeat center center fixed;
-      background-size: cover;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: rgba(255,255,255,0.7);
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    .app {
-      position: relative;
-      z-index: 1;
-      background: rgba(255,255,255,0.92);
-      width: 100%;
-      max-width: 390px;
-      min-height: 100vh;
-      padding: 20px;
-      box-sizing: border-box;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .logo {
-      font-size: 22px;
-      font-weight: bold;
-      margin-bottom: 16px;
-      color: #1f2d3d;
-    }
-
-    .logo span { color: #f1c40f; }
-
-    .buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      margin-top: 18px;
-    }
-
-    button {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      max-height: 110px;
-      font-size: 14px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      color: #fff;
-      background: linear-gradient(145deg, #5dade2, #2e86c1);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 10px;
-      box-sizing: border-box;
-    }
-
-    .secondary { background: linear-gradient(145deg, #b2bec3, #7f8c8d); }
-    .whatsapp { background: linear-gradient(145deg, #2ecc71, #1e8449); }
-    .payment { background: linear-gradient(145deg, #f39c12, #d35400); }
-    .link { background: linear-gradient(145deg, #27ae60, #1e8449); }
-
-    .hidden { display: none !important; }
-
-    ul {
-      list-style: none;
-      padding-left: 0;
-      margin: 10px 0;
-    }
-
-    ul li { margin-bottom: 6px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeautyBook - Gestão Profissional</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="app">
 
-    <div class="logo">Star <span>Online</span></div>
+<div class="container">
+    <header>
+        <h1>Beauty<span>Book</span></h1>
+        <p>Gestão de Agendamentos</p>
+    </header>
 
-    <div id="home">
-      <h1>Sua TV, do seu jeito!</h1>
-      <p>Selecione uma opção para iniciar o atendimento.</p>
-      <div class="buttons" style="display:grid;grid-template-columns:1fr 1fr;">
-        <button onclick="showSection('cliente')">SOU CLIENTE</button>
-        <button onclick="showSection('naoCliente')">NÃO CLIENTE</button>
-      </div>
-      <div class="buttons">
-        <button class="whatsapp" onclick="openWhats()">FALAR COM ATENDENTE</button>
-        <button class="payment" onclick="showSection('pagamento')">PAGAMENTO</button>
-      </div>
-    </div>
+    <main>
+        <section class="card">
+            <h3>✨ Novo Agendamento</h3>
+            <div class="services-grid">
+                <button onclick="AppAppoint.selecionarServico('Corte de Cabelo', 80)">Corte</button>
+                <button onclick="AppAppoint.selecionarServico('Manicure', 50)">Manicure</button>
+                <button onclick="AppAppoint.selecionarServico('Escova', 60)">Escova</button>
+                <button onclick="AppAppoint.selecionarServico('Design Sobrancelha', 40)">Sobrancelha</button>
+            </div>
 
-    <div id="cliente" class="hidden">
-      <h2>Suporte</h2>
-      <div class="buttons" style="display:grid;grid-template-columns:1fr 1fr;">
-        <button onclick="showSection('semImagem')">SEM IMAGEM</button>
-        <button onclick="showSection('semConexao')">SEM CONEXÃO</button>
-        <button onclick="showSection('semCanais')">SEM CANAIS</button>
-        <button class="whatsapp" onclick="openWhats('ADICIONAR_TV')">ADICIONAR TV</button>
-      </div>
-      <div class="buttons">
-        <button class="secondary" onclick="showSection('home')">VOLTAR</button>
-      </div>
-    </div>
+            <div id="servicoSelecionado" class="status-bar">Selecione um serviço acima</div>
 
-    <div id="semImagem" class="hidden">
-      <h2>Sem Imagem</h2>
-      <p>Desligue o equipamento da tomada por 1 minuto, ligue novamente e faça login no aplicativo.</p>
-      <div class="buttons">
-        <button class="secondary" onclick="showSection('home')">VOLTAR</button>
-      </div>
-    </div>
+            <div class="form-group">
+                <input type="date" id="data">
+                <select id="hora">
+                    <option value="">Selecione a data primeiro</option>
+                </select>
+                <button class="btn-confirmar" onclick="AppAppoint.agendar()">Confirmar Horário</button>
+            </div>
+        </section>
 
-    <div id="semConexao" class="hidden">
-      <h2>Sem Conexão</h2>
-      <p>Desligue o modem ou roteador da tomada por 1 minuto e tente novamente.</p>
-      <div class="buttons">
-        <button class="secondary" onclick="showSection('cliente')">VOLTAR</button>
-      </div>
-    </div>
+        <section class="card admin-panel">
+            <h3>📅 Agenda do Dia</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Serviço</th>
+                            <th>Data</th>
+                            <th>Hora</th>
+                            <th>Valor</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista"></tbody>
+                </table>
+            </div>
+            <div id="total" class="total-faturamento">Total: R$ 0,00</div>
+        </section>
+    </main>
+</div>
 
-    <div id="semCanais" class="hidden">
-      <h2>Sem Canais</h2>
-      <p>Verifique se sua mensalidade está em dia. Faça a medição da sua internet e informe: PING / DOWNLOAD / UPLOAD.</p>
-      <div class="buttons">
-        <button class="link" onclick="openSpeed()">TESTAR VELOCIDADE</button>
-        <button class="secondary" onclick="showSection('cliente')">VOLTAR</button>
-      </div>
-    </div>
-
-    <div id="naoCliente" class="hidden">
-      <h2>Informações</h2>
-      <p>Alta qualidade de transmissão. Internet mínima de 45 Mbps estável é recomendada.</p>
-      <p>Preferência por conexão via cabo para melhor aproveitamento do sinal.</p>
-      <h3>Compatibilidade</h3>
-      <ul>
-        <li>Smart TV</li>
-        <li>TV Box / Android TV</li>
-        <li>Celular (Android / iOS)</li>
-        <li>Computador</li>
-      </ul>
-      <div class="buttons">
-        <button onclick="showSection('planos')">PLANOS</button>
-        <button class="whatsapp" onclick="openWhats()">TESTE GRÁTIS</button>
-        <button class="secondary" onclick="showSection('home')">VOLTAR</button>
-      </div>
-    </div>
-
-    <div id="planos" class="hidden">
-      <h2>Planos</h2>
-      <p>Escolha o plano ideal para você.</p>
-
-      <div class="buttons" style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
-        <button onclick="showSection('demoStandard')">
-          <strong>STANDARD</strong>
-          <span style="font-size:13px; margin:6px 0;">R$ 35,00</span>
-          <small>CANAIS | FILMES | SÉRIES</small>
-        </button>
-
-        <button onclick="showSection('demoPremium')" style="background:linear-gradient(145deg,#8e44ad,#5e3370);">
-          <strong>PREMIUM ⭐</strong>
-          <span style="color:#ffd700; font-weight:bold; font-size:12px;">MAIS COMPLETO</span>
-          <span style="font-size:13px;">R$ 45,00</span>
-          <small>CANAIS | FILMES | SÉRIES + CANAIS PRIVÊ</small>
-        </button>
-      </div>
-
-      <div class="buttons">
-        <button class="secondary" onclick="showSection('naoCliente')">VOLTAR</button>
-      </div>
-    </div>
-
-    <!-- DEMONSTRAÇÃO STANDARD -->
-    <div id="demoStandard" class="hidden">
-      <h2>Plano Standard</h2>
-      <img src="https://via.placeholder.com/300x180?text=Plano+Standard" style="width:100%;border-radius:8px;margin:10px 0;" />
-      <p>Canais ao vivo, filmes e séries com ótima qualidade.</p>
-      <p>Ideal para toda a família.</p>
-      <div class="buttons">
-        <button class="whatsapp" onclick="openWhats('STANDARD')">QUERO ESSE PLANO</button>
-        <button class="secondary" onclick="showSection('planos')">VOLTAR</button>
-      </div>
-    </div>
-
-    <!-- DEMONSTRAÇÃO PREMIUM -->
-    <div id="demoPremium" class="hidden">
-      <h2>Plano Premium</h2>
-      <img src="https://via.placeholder.com/300x180?text=Plano+Premium" style="width:100%;border-radius:8px;margin:10px 0;" />
-      <p>Todos os canais, filmes, séries e conteúdos adultos.</p>
-      <p>Experiência completa e sem limitações.</p>
-      <div class="buttons">
-        <button class="whatsapp" onclick="openWhats('PREMIUM')">QUERO ESSE PLANO</button>
-        <button class="secondary" onclick="showSection('planos')">VOLTAR</button>
-      </div>
-    </div>
-
-    <div id="pagamento" class="hidden"> class="hidden">
-      <h2>Pagamento</h2>
-      <p>Chave Pix (aleatória):</p>
-      <strong>c83427a5-24e5-4244-9dc5-225536cbd356</strong>
-      <div class="buttons">
-        <button class="payment" onclick="copyPix()">COPIAR PIX</button>
-        <button class="secondary" onclick="showSection('home')">VOLTAR</button>
-      </div>
-    </div>
-
-  </div>
-
-  <script>
-  // Garante que o script rode apenas após o carregamento do HTML
-  document.addEventListener('DOMContentLoaded', () => {
-    
-    // 1. Controle de navegação entre seções
-    window.showSection = function(id) {
-      // Seleciona todas as divs que são filhas diretas de .app e têm um ID
-      const sections = document.querySelectorAll('.app > div[id]');
-      
-      sections.forEach(div => {
-        div.classList.add('hidden');
-      });
-
-      const sectionToShow = document.getElementById(id);
-      if (sectionToShow) {
-        sectionToShow.classList.remove('hidden');
-        // Rola para o topo da nova seção automaticamente
-        window.scrollTo(0, 0);
-      } else {
-        console.error("Seção não encontrada: " + id);
-      }
-    };
-
-    // 2. Abertura do WhatsApp com mensagem contextual
-    window.openWhats = function(plano) {
-      let msg = 'Olá, quero mais informações';
-
-      if (plano === 'STANDARD') msg = 'Eu quero o plano Standard';
-      if (plano === 'PREMIUM') msg = 'Eu quero o plano Premium';
-      if (plano === 'ADICIONAR_TV') msg = 'Olá! Quero adicionar mais uma TV';
-
-      const phone = '5521988373685';
-      const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-      
-      // Abre em nova aba para não fechar o app/site
-      window.open(url, '_blank');
-    };
-
-    // 3. Teste de velocidade da internet
-    window.openSpeed = function() {
-      window.open('https://www.speedtest.net/pt', '_blank');
-    };
-
-    // 4. Copiar chave Pix
-    window.copyPix = function() {
-      const chavePix = 'c83427a5-24e5-4244-9dc5-225536cbd356';
-      
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(chavePix).then(() => {
-          alert('Chave Pix copiada com sucesso!');
-        }).catch(err => {
-          console.error('Erro ao copiar: ', err);
-          alert('Chave: ' + chavePix);
-        });
-      } else {
-        // Fallback manual caso o navegador bloqueie a API de clipboard
-        const input = document.createElement('input');
-        input.value = chavePix;
-        document.body.appendChild(input);
-        input.select();
-        document.execCommand('copy');
-        document.body.removeChild(input);
-        alert('Chave Pix copiada!');
-      }
-    };
-  });
-</script>
+<script src="script.js"></script>
 </body>
 </html>
