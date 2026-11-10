@@ -154,6 +154,7 @@
 <script src="supabase-config.js"></script>
 
 <script>
+
 const bb = window.beautybookSupabase;
 
 const nomeSalao = document.getElementById("nomeSalao");
@@ -178,7 +179,7 @@ async function carregarPainel() {
         emailUsuario.textContent = usuario.email;
 
         const { data: membro, error: erroMembro } =
-            await supabase
+            await bb
                 .from("membros_empresa")
                 .select("empresa_id, papel")
                 .eq("user_id", usuario.id)
@@ -195,7 +196,7 @@ async function carregarPainel() {
         }
 
         const { data: empresa, error: erroEmpresa } =
-            await supabase
+            await bb
                 .from("empresas")
                 .select("nome_fantasia, nome_proprietario")
                 .eq("id", membro.empresa_id)
@@ -210,8 +211,9 @@ async function carregarPainel() {
         }
 
         nomeSalao.textContent = empresa.nome_fantasia;
-        tipoAcesso.textContent =
-            "Acesso: " + membro.papel;
+        tipoAcesso.textContent = "Acesso: " + membro.papel;
+
+        mensagem.style.display = "none";
 
     } catch (error) {
         mensagem.style.display = "block";
@@ -222,7 +224,7 @@ async function carregarPainel() {
 }
 
 document.getElementById("btnSair").addEventListener("click", async function() {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await bb.auth.signOut();
 
     if (error) {
         mensagem.style.display = "block";
@@ -234,7 +236,6 @@ document.getElementById("btnSair").addEventListener("click", async function() {
 });
 
 carregarPainel();
-</script>
 
 </body>
 </html>
