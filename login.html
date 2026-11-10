@@ -1,0 +1,198 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar - BeautyBook</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: #f3e9df;
+            font-family: Arial, sans-serif;
+            color: #604735;
+        }
+
+        .login-box {
+            width: 100%;
+            max-width: 410px;
+            padding: 35px 28px;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 12px 35px #60473520;
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 29px;
+            font-weight: 800;
+            color: #8b674c;
+            margin-bottom: 8px;
+        }
+
+        .subtitulo {
+            text-align: center;
+            color: #88796e;
+            margin-bottom: 28px;
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 7px;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #dfd3c8;
+            border-radius: 9px;
+            font-size: 15px;
+        }
+
+        input:focus {
+            outline: 2px solid #b89572;
+            border-color: #b89572;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 23px;
+            padding: 15px;
+            border: none;
+            border-radius: 9px;
+            background: #8b674c;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: .6;
+            cursor: wait;
+        }
+
+        #mensagem {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .links {
+            margin-top: 22px;
+            text-align: center;
+            font-size: 14px;
+            line-height: 2;
+        }
+
+        a {
+            color: #8b674c;
+            font-weight: bold;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="login-box">
+
+    <div class="logo">BeautyBook</div>
+    <p class="subtitulo">Acesse a gestão do seu salão</p>
+
+    <form id="loginForm">
+
+        <label for="email">E-mail</label>
+        <input
+            type="email"
+            id="email"
+            required
+            autocomplete="username"
+            placeholder="Seu e-mail"
+        >
+
+        <label for="senha">Senha</label>
+        <input
+            type="password"
+            id="senha"
+            required
+            autocomplete="current-password"
+            placeholder="Sua senha"
+        >
+
+        <button type="submit" id="btnEntrar">
+            Entrar no BeautyBook
+        </button>
+
+        <div id="mensagem" role="status"></div>
+
+    </form>
+
+    <div class="links">
+        Ainda não tem uma conta?<br>
+        <a href="cadastro.html">Cadastrar meu salão</a>
+        <br>
+        <a href="index.html">Voltar ao início</a>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+
+<script>
+const form = document.getElementById("loginForm");
+const mensagem = document.getElementById("mensagem");
+const botao = document.getElementById("btnEntrar");
+
+form.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const email = document.getElementById("email").value.trim();
+    const senha = document.getElementById("senha").value;
+
+    mensagem.textContent = "";
+    botao.disabled = true;
+    botao.textContent = "Verificando acesso...";
+
+    try {
+        const { data, error } =
+            await window.beautybookSupabase.auth.signInWithPassword({
+                email: email,
+                password: senha
+            });
+
+        if (error) throw error;
+
+        if (!data.session) {
+            throw new Error("Não foi possível iniciar sua sessão.");
+        }
+
+        mensagem.style.color = "#287a4b";
+        mensagem.textContent = "Acesso autorizado!";
+
+        window.location.href = "painel.html";
+
+    } catch (error) {
+        mensagem.style.color = "#a04465";
+        mensagem.textContent = "Atenção: " + error.message;
+
+        botao.disabled = false;
+        botao.textContent = "Entrar no BeautyBook";
+    }
+});
+</script>
+
+</body>
+</html>
