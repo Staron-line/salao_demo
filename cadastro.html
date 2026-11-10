@@ -154,7 +154,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 
-<script>
 
 <script>
 const form = document.getElementById("formCadastro");
@@ -172,7 +171,6 @@ form.addEventListener("submit", async function(event) {
     const confirmar = document.getElementById("confirmarSenha").value;
 
     mensagem.textContent = "";
-    mensagem.style.color = "#a04465";
 
     if (senha !== confirmar) {
         mensagem.textContent = "As senhas não são iguais.";
@@ -188,10 +186,9 @@ form.addEventListener("submit", async function(event) {
     botao.textContent = "Criando sua conta...";
 
     try {
-        // Cria a conta e autentica o proprietário
         const { data, error } =
             await window.beautybookSupabase.auth.signUp({
-                email,
+                email: email,
                 password: senha,
                 options: {
                     data: {
@@ -206,11 +203,10 @@ form.addEventListener("submit", async function(event) {
 
         if (!data.session) {
             throw new Error(
-                "A conta foi criada, mas não houve autenticação. Verifique a configuração de confirmação de e-mail."
+                "Conta criada, mas sem sessão. Confira a configuração de confirmação de e-mail."
             );
         }
 
-        // Cria o salão, proprietário e assinatura de teste
         const { data: empresaId, error: erroCadastro } =
             await window.beautybookSupabase.rpc(
                 "finalizar_cadastro_beautybook"
@@ -219,27 +215,25 @@ form.addEventListener("submit", async function(event) {
         if (erroCadastro) throw erroCadastro;
 
         if (!empresaId) {
-            throw new Error("Não foi possível concluir o cadastro do salão.");
+            throw new Error("Não foi possível criar o salão.");
         }
 
         mensagem.style.color = "#287a4b";
         mensagem.textContent =
-            "Cadastro concluído! Seu salão já está registrado e seu período de teste de 15 dias começou.";
+            "Cadastro concluído! Seu teste de 15 dias começou.";
 
         form.reset();
-
         botao.textContent = "Cadastro concluído";
 
     } catch (error) {
         mensagem.style.color = "#a04465";
-        mensagem.textContent =
-            "Atenção: " + error.message;
+        mensagem.textContent = "Atenção: " + error.message;
 
         botao.disabled = false;
         botao.textContent = "Criar minha conta";
     }
 });
 </script>
+
 </body>
 </html>
-
