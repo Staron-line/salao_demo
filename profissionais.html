@@ -437,7 +437,38 @@ form.addEventListener("submit", async function(event) {
             : "Salvar profissional";
     }
 });
+async function excluirProfissional(profissional) {
+    const confirmar = confirm(
+        "Deseja realmente excluir o profissional " +
+        profissional.nome +
+        "?\n\nEssa ação não poderá ser desfeita."
+    );
 
+    if (!confirmar) return;
+
+    try {
+        const { error } = await bb
+            .from("profissionais")
+            .delete()
+            .eq("id", profissional.id)
+            .eq("empresa_id", empresaId);
+
+        if (error) throw error;
+
+        mostrarMensagem(
+            "Profissional excluído com sucesso!",
+            true
+        );
+
+        await carregarProfissionais();
+
+    } catch (error) {
+        mostrarMensagem(
+            "Não foi possível excluir. Verifique se existem agendamentos ou vínculos associados. Detalhe: " +
+            error.message
+        );
+    }
+}
 function editarProfissional(profissional) {
     profissionalEditando = profissional.id;
 
