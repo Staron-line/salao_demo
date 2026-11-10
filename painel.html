@@ -154,7 +154,7 @@
 <script src="supabase-config.js"></script>
 
 <script>
-const supabase = window.beautybookSupabase;
+const bb = window.beautybookSupabase;
 
 const nomeSalao = document.getElementById("nomeSalao");
 const emailUsuario = document.getElementById("emailUsuario");
@@ -164,7 +164,7 @@ const mensagem = document.getElementById("mensagem");
 async function carregarPainel() {
     try {
         const { data: sessaoData, error: erroSessao } =
-            await supabase.auth.getSession();
+            await bb.auth.getSession();
 
         if (erroSessao) throw erroSessao;
 
