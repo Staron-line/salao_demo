@@ -327,12 +327,30 @@ function aplicarFiltros() {
 
         informacoes.append(nome, especialidade, telefone, comissao, status);
 
+        const acoes = document.createElement("div");
+        acoes.style.display = "flex";
+        acoes.style.gap = "8px";
+
         const editar = document.createElement("button");
         editar.className = "botao-secundario";
         editar.textContent = "Editar";
         editar.addEventListener("click", () =>
-            editarProfissional(profissional)
-        );
+        editarProfissional(profissional)
+);
+
+const excluir = document.createElement("button");
+excluir.className = "botao-secundario";
+excluir.textContent = "Excluir";
+excluir.style.background = "#fbe5e5";
+excluir.style.color = "#a04465";
+
+excluir.addEventListener("click", () =>
+    excluirProfissional(profissional)
+);
+
+acoes.append(editar, excluir);
+item.append(informacoes, acoes);
+lista.appendChild(item);
 
         item.append(informacoes, editar);
         lista.appendChild(item);
