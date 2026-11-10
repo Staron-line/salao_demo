@@ -176,47 +176,37 @@
     </div>
 
     <section class="card">
-        <h2 id="tituloFormulario">Cadastrar profissional</h2>
+    <h2>Equipe cadastrada</h2>
 
-        <form id="formProfissional">
+    <div class="formulario" style="margin-bottom:20px;">
 
-            <div class="formulario">
+        <div class="campo">
+            <label for="pesquisaNome">Pesquisar profissional</label>
+            <input
+                id="pesquisaNome"
+                type="text"
+                placeholder="Digite o nome..."
+            >
+        </div>
 
-                <div class="campo">
-                    <label for="nome">Nome *</label>
-                    <input id="nome" type="text" required>
-                </div>
+        <div class="campo">
+            <label for="filtroStatus">Filtrar situação</label>
+            <select
+                id="filtroStatus"
+                style="padding:12px;border:1px solid #ddd0c2;border-radius:8px;"
+            >
+                <option value="todos">Todos os profissionais</option>
+                <option value="true">Somente ativos</option>
+                <option value="false">Somente inativos</option>
+            </select>
+        </div>
 
-                <div class="campo">
-                    <label for="telefone">Telefone</label>
-                    <input id="telefone" type="tel">
-                </div>
+    </div>
 
-                <div class="campo">
-                    <label for="email">E-mail</label>
-                    <input id="email" type="email">
-                </div>
-
-                <div class="campo">
-                    <label for="especialidade">Especialidade</label>
-                    <input id="especialidade" type="text"
-                           placeholder="Ex.: Cabeleireiro">
-                </div>
-
-                <div class="campo">
-                    <label for="comissao">Comissão (%)</label>
-                    <input id="comissao" type="number"
-                           min="0" max="100" step="0.01"
-                           placeholder="Ex.: 30">
-                </div>
-
-                <div class="campo">
-                    <label for="ativo">Situação</label>
-                    <select id="ativo" style="padding:12px;border:1px solid #ddd0c2;border-radius:8px;">
-                        <option value="true">Ativo</option>
-                        <option value="false">Inativo</option>
-                    </select>
-                </div>
+    <div id="listaProfissionais" class="lista">
+        Carregando profissionais...
+    </div>
+</section>
 
                 <div class="campo campo-completo">
                     <button class="botao" id="btnSalvar" type="submit">
