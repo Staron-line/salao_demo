@@ -1,0 +1,650 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Serviços | BeautyBook</title>
+<link rel="stylesheet" href="../style.css">
+
+<style>
+body {
+    background: #f7f2ec;
+    color: #604735;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 24px;
+}
+.container { max-width: 1000px; margin: auto; }
+.topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+.topo h1 { margin: 0; }
+.voltar { color: #604735; text-decoration: none; font-weight: bold; }
+.card {
+    background: white;
+    padding: 24px;
+    border-radius: 14px;
+    margin-bottom: 22px;
+    box-shadow: 0 4px 18px #60473512;
+}
+.formulario {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+.campo { display: flex; flex-direction: column; gap: 7px; }
+.campo label { font-weight: bold; font-size: 14px; }
+.campo input, .campo select, .campo textarea {
+    padding: 12px;
+    border: 1px solid #ddd0c2;
+    border-radius: 8px;
+    font-size: 15px;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+.campo textarea { min-height: 85px; resize: vertical; }
+.campo-completo { grid-column: 1 / -1; }
+.botao {
+    background: #604735;
+    color: white;
+    border: none;
+    padding: 13px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+.botao:disabled { opacity: .6; cursor: not-allowed; }
+.botao-secundario {
+    background: #eee5dc;
+    color: #604735;
+    border: none;
+    padding: 9px 13px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+.lista { display: grid; gap: 12px; }
+.servico {
+    border: 1px solid #eee5dc;
+    padding: 16px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.servico h3 { margin: 0 0 7px; }
+.servico p { margin: 4px 0; font-size: 14px; }
+.status { font-weight: bold; font-size: 13px; }
+.ativo { color: #287a4b; }
+.inativo { color: #a04465; }
+.profissionais-opcoes {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid #eee5dc;
+    border-radius: 8px;
+}
+.profissional-opcao {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+.profissional-opcao input { width: auto; }
+.acoes {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+#mensagem { margin-top: 15px; font-size: 14px; }
+[hidden] { display: none !important; }
+
+@media (max-width: 600px) {
+    body { padding: 14px; }
+    .formulario, .profissionais-opcoes {
+        grid-template-columns: 1fr;
+    }
+    .campo-completo { grid-column: auto; }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+    <div class="topo">
+        <div>
+            <h1>Serviços</h1>
+            <p>Cadastre e gerencie os serviços do seu salão.</p>
+        </div>
+        <a class="voltar" href="../painel.html">← Voltar ao painel</a>
+    </div>
+
+    <section class="card">
+        <h2 id="tituloFormulario">Cadastrar serviço</h2>
+
+        <form id="formServico">
+            <div class="formulario">
+
+                <div class="campo">
+                    <label for="nome">Nome do serviço *</label>
+                    <input id="nome" type="text"
+                           placeholder="Ex.: Manicure" required>
+                </div>
+
+                <div class="campo">
+                    <label for="preco">Preço (R$) *</label>
+                    <input id="preco" type="number"
+                           min="0" step="0.01" placeholder="Ex.: 50,00" required>
+                </div>
+
+                <div class="campo">
+                    <label for="duracao">Duração (minutos) *</label>
+                    <input id="duracao" type="number"
+                           min="1" step="1" placeholder="Ex.: 60" required>
+                </div>
+
+                <div class="campo">
+                    <label for="ativo">Situação</label>
+                    <select id="ativo">
+                        <option value="true">Ativo</option>
+                        <option value="false">Inativo</option>
+                    </select>
+                </div>
+
+                <div class="campo campo-completo">
+                    <label for="descricao">Descrição</label>
+                    <textarea id="descricao"
+                        placeholder="Descreva o serviço..."></textarea>
+                </div>
+
+                <div class="campo campo-completo">
+                    <label>Profissionais que realizam este serviço</label>
+                    <div id="opcoesProfissionais" class="profissionais-opcoes">
+                        Carregando profissionais...
+                    </div>
+                </div>
+
+                <div class="campo campo-completo">
+                    <button class="botao" id="btnSalvar" type="submit">
+                        Salvar serviço
+                    </button>
+                    <button class="botao-secundario" id="btnCancelar"
+                            type="button" hidden>
+                        Cancelar edição
+                    </button>
+                </div>
+
+            </div>
+        </form>
+
+        <div id="mensagem"></div>
+    </section>
+
+    <section class="card">
+        <h2>Serviços cadastrados</h2>
+
+        <div class="formulario" style="margin-bottom:20px;">
+            <div class="campo">
+                <label for="pesquisaNome">Pesquisar serviço</label>
+                <input id="pesquisaNome" type="text"
+                       placeholder="Digite o nome...">
+            </div>
+
+            <div class="campo">
+                <label for="filtroStatus">Filtrar situação</label>
+                <select id="filtroStatus">
+                    <option value="todos">Todos os serviços</option>
+                    <option value="true">Somente ativos</option>
+                    <option value="false">Somente inativos</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="listaServicos" class="lista">
+            Carregando serviços...
+        </div>
+    </section>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../supabase-config.js"></script>
+
+<script>
+const bb = window.beautybookSupabase;
+
+const form = document.getElementById("formServico");
+const mensagem = document.getElementById("mensagem");
+const lista = document.getElementById("listaServicos");
+const opcoes = document.getElementById("opcoesProfissionais");
+const botaoSalvar = document.getElementById("btnSalvar");
+const botaoCancelar = document.getElementById("btnCancelar");
+
+let empresaId = null;
+let servicoEditando = null;
+let servicos = [];
+let profissionais = [];
+let vinculos = [];
+
+function mostrarMensagem(texto, sucesso = false) {
+    mensagem.style.color = sucesso ? "#287a4b" : "#a04465";
+    mensagem.textContent = texto;
+}
+
+function limparFormulario() {
+    form.reset();
+    servicoEditando = null;
+
+    document.getElementById("tituloFormulario").textContent =
+        "Cadastrar serviço";
+
+    botaoSalvar.textContent = "Salvar serviço";
+    botaoCancelar.hidden = true;
+
+    document.querySelectorAll(
+        "#opcoesProfissionais input[type='checkbox']"
+    ).forEach(campo => campo.checked = false);
+}
+
+async function iniciar() {
+    try {
+        const { data: sessaoData, error: erroSessao } =
+            await bb.auth.getSession();
+
+        if (erroSessao) throw erroSessao;
+
+        const usuario = sessaoData.session?.user;
+
+        if (!usuario) {
+            window.location.replace("../login.html");
+            return;
+        }
+
+        const { data: membro, error: erroMembro } = await bb
+            .from("membros_empresa")
+            .select("empresa_id")
+            .eq("user_id", usuario.id)
+            .eq("ativo", true)
+            .limit(1)
+            .maybeSingle();
+
+        if (erroMembro) throw erroMembro;
+        if (!membro) throw new Error("Empresa não encontrada.");
+
+        empresaId = membro.empresa_id;
+
+        await carregarProfissionais();
+        await carregarServicos();
+
+    } catch (error) {
+        mostrarMensagem("Erro ao carregar: " + error.message);
+        lista.textContent = "Não foi possível carregar os serviços.";
+    }
+}
+
+async function carregarProfissionais() {
+    const { data, error } = await bb
+        .from("profissionais")
+        .select("id, nome, ativo")
+        .eq("empresa_id", empresaId)
+        .eq("ativo", true)
+        .order("nome", { ascending: true });
+
+    if (error) throw error;
+
+    profissionais = data || [];
+    mostrarOpcoesProfissionais();
+}
+
+function mostrarOpcoesProfissionais() {
+    opcoes.innerHTML = "";
+
+    if (profissionais.length === 0) {
+        opcoes.textContent =
+            "Cadastre profissionais ativos antes de vinculá-los aos serviços.";
+        return;
+    }
+
+    profissionais.forEach(profissional => {
+        const label = document.createElement("label");
+        label.className = "profissional-opcao";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = profissional.id;
+        checkbox.name = "profissionais";
+
+        const texto = document.createElement("span");
+        texto.textContent = profissional.nome;
+
+        label.append(checkbox, texto);
+        opcoes.appendChild(label);
+    });
+}
+
+async function carregarServicos() {
+    lista.textContent = "Carregando serviços...";
+
+    const { data, error } = await bb
+        .from("servicos")
+        .select("*")
+        .eq("empresa_id", empresaId)
+        .order("nome", { ascending: true });
+
+    if (error) throw error;
+
+    servicos = data || [];
+
+    const { data: dadosVinculos, error: erroVinculos } = await bb
+        .from("profissionais_servicos")
+        .select("profissional_id, servico_id")
+        .eq("empresa_id", empresaId);
+
+    if (erroVinculos) throw erroVinculos;
+
+    vinculos = dadosVinculos || [];
+
+    aplicarFiltros();
+}
+
+function aplicarFiltros() {
+    const pesquisa = document.getElementById("pesquisaNome")
+        .value.trim().toLocaleLowerCase("pt-BR");
+
+    const filtro = document.getElementById("filtroStatus").value;
+
+    const filtrados = servicos.filter(servico => {
+        const nome = (servico.nome || "")
+            .toLocaleLowerCase("pt-BR");
+
+        return nome.includes(pesquisa) &&
+            (filtro === "todos" || String(servico.ativo) === filtro);
+    });
+
+    lista.innerHTML = "";
+
+    if (filtrados.length === 0) {
+        lista.textContent = servicos.length === 0
+            ? "Nenhum serviço cadastrado ainda."
+            : "Nenhum serviço encontrado com esses filtros.";
+        return;
+    }
+
+    filtrados.forEach(servico => {
+        const item = document.createElement("div");
+        item.className = "servico";
+
+        const informacoes = document.createElement("div");
+
+        const nome = document.createElement("h3");
+        nome.textContent = servico.nome;
+
+        const descricao = document.createElement("p");
+        descricao.textContent =
+            "Descrição: " + (servico.descricao || "Não informada");
+
+        const preco = document.createElement("p");
+        preco.textContent = "Preço: " +
+            Number(servico.preco).toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL"
+            });
+
+        const duracao = document.createElement("p");
+        duracao.textContent =
+            "Duração: " + servico.duracao_minutos + " minutos";
+
+        const nomesProfissionais = vinculos
+            .filter(v => v.servico_id === servico.id)
+            .map(v => profissionais.find(
+                p => p.id === v.profissional_id
+            ))
+            .filter(Boolean)
+            .map(p => p.nome);
+
+        const equipe = document.createElement("p");
+        equipe.textContent = "Profissionais: " +
+            (nomesProfissionais.length
+                ? nomesProfissionais.join(", ")
+                : "Nenhum vinculado");
+
+        const status = document.createElement("p");
+        status.className = "status " +
+            (servico.ativo ? "ativo" : "inativo");
+        status.textContent = servico.ativo ? "Ativo" : "Inativo";
+
+        informacoes.append(
+            nome, descricao, preco, duracao, equipe, status
+        );
+
+        const acoes = document.createElement("div");
+        acoes.className = "acoes";
+
+        const editar = document.createElement("button");
+        editar.className = "botao-secundario";
+        editar.textContent = "Editar";
+        editar.addEventListener("click", () =>
+            editarServico(servico)
+        );
+
+        const excluir = document.createElement("button");
+        excluir.className = "botao-secundario";
+        excluir.textContent = "Excluir";
+        excluir.style.background = "#fbe5e5";
+        excluir.style.color = "#a04465";
+        excluir.addEventListener("click", () =>
+            excluirServico(servico)
+        );
+
+        acoes.append(editar, excluir);
+        item.append(informacoes, acoes);
+        lista.appendChild(item);
+    });
+}
+
+async function salvarVinculos(servicoId, profissionaisIds) {
+    const { error: erroExcluir } = await bb
+        .from("profissionais_servicos")
+        .delete()
+        .eq("empresa_id", empresaId)
+        .eq("servico_id", servicoId);
+
+    if (erroExcluir) throw erroExcluir;
+
+    if (profissionaisIds.length === 0) return;
+
+    const registros = profissionaisIds.map(profissionalId => ({
+        empresa_id: empresaId,
+        profissional_id: profissionalId,
+        servico_id: servicoId
+    }));
+
+    const { error } = await bb
+        .from("profissionais_servicos")
+        .insert(registros);
+
+    if (error) throw error;
+}
+
+form.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    if (!empresaId) {
+        mostrarMensagem("Empresa não identificada.");
+        return;
+    }
+
+    const nome = document.getElementById("nome").value.trim();
+    const preco = Number(document.getElementById("preco").value);
+    const duracao = Number(document.getElementById("duracao").value);
+    const descricao = document.getElementById("descricao").value.trim();
+    const ativo = document.getElementById("ativo").value === "true";
+
+    const profissionaisSelecionados = Array.from(
+        document.querySelectorAll(
+            "#opcoesProfissionais input[type='checkbox']:checked"
+        )
+    ).map(campo => campo.value);
+
+    if (!nome) {
+        mostrarMensagem("Informe o nome do serviço.");
+        return;
+    }
+
+    if (!Number.isFinite(preco) || preco < 0) {
+        mostrarMensagem("Informe um preço válido.");
+        return;
+    }
+
+    if (!Number.isInteger(duracao) || duracao < 1) {
+        mostrarMensagem("A duração deve ser de pelo menos 1 minuto.");
+        return;
+    }
+
+    botaoSalvar.disabled = true;
+    botaoSalvar.textContent = "Salvando...";
+
+    try {
+        const dados = {
+            nome,
+            descricao: descricao || null,
+            preco,
+            duracao_minutos: duracao,
+            ativo
+        };
+
+        let servicoId = servicoEditando;
+
+        if (servicoEditando) {
+            const { error } = await bb
+                .from("servicos")
+                .update(dados)
+                .eq("id", servicoEditando)
+                .eq("empresa_id", empresaId);
+
+            if (error) throw error;
+
+        } else {
+            const { data, error } = await bb
+                .from("servicos")
+                .insert({
+                    ...dados,
+                    empresa_id: empresaId
+                })
+                .select("id")
+                .single();
+
+            if (error) throw error;
+
+            servicoId = data.id;
+        }
+
+        await salvarVinculos(servicoId, profissionaisSelecionados);
+
+        mostrarMensagem("Serviço salvo com sucesso!", true);
+        limparFormulario();
+        await carregarServicos();
+
+    } catch (error) {
+        mostrarMensagem(
+            "Erro ao salvar: " + error.message +
+            ". Confira também os vínculos dos profissionais."
+        );
+    } finally {
+        botaoSalvar.disabled = false;
+        botaoSalvar.textContent = servicoEditando
+            ? "Salvar alterações"
+            : "Salvar serviço";
+    }
+});
+
+function editarServico(servico) {
+    servicoEditando = servico.id;
+
+    document.getElementById("nome").value = servico.nome || "";
+    document.getElementById("preco").value = servico.preco ?? "";
+    document.getElementById("duracao").value =
+        servico.duracao_minutos ?? "";
+    document.getElementById("descricao").value =
+        servico.descricao || "";
+    document.getElementById("ativo").value = String(servico.ativo);
+
+    const vinculados = vinculos
+        .filter(v => v.servico_id === servico.id)
+        .map(v => v.profissional_id);
+
+    document.querySelectorAll(
+        "#opcoesProfissionais input[type='checkbox']"
+    ).forEach(campo => {
+        campo.checked = vinculados.includes(campo.value);
+    });
+
+    document.getElementById("tituloFormulario").textContent =
+        "Editar serviço";
+
+    botaoSalvar.textContent = "Salvar alterações";
+    botaoCancelar.hidden = false;
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+async function excluirServico(servico) {
+    const confirmar = confirm(
+        "Deseja realmente excluir o serviço " +
+        servico.nome +
+        "?\n\nEssa ação não poderá ser desfeita."
+    );
+
+    if (!confirmar) return;
+
+    try {
+        const { error: erroVinculos } = await bb
+            .from("profissionais_servicos")
+            .delete()
+            .eq("empresa_id", empresaId)
+            .eq("servico_id", servico.id);
+
+        if (erroVinculos) throw erroVinculos;
+
+        const { error } = await bb
+            .from("servicos")
+            .delete()
+            .eq("id", servico.id)
+            .eq("empresa_id", empresaId);
+
+        if (error) throw error;
+
+        mostrarMensagem("Serviço excluído com sucesso!", true);
+        await carregarServicos();
+
+    } catch (error) {
+        mostrarMensagem(
+            "Não foi possível excluir. Pode haver agendamentos vinculados. Detalhe: " +
+            error.message
+        );
+    }
+}
+
+document.getElementById("pesquisaNome")
+    .addEventListener("input", aplicarFiltros);
+
+document.getElementById("filtroStatus")
+    .addEventListener("change", aplicarFiltros);
+
+botaoCancelar.addEventListener("click", limparFormulario);
+
+iniciar();
+</script>
+</body>
+</html>
