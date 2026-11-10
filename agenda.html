@@ -1,0 +1,443 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agenda | BeautyBook</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+
+<style>
+*{box-sizing:border-box}
+body{
+    margin:0;
+    padding:25px;
+    background:#f5eee7;
+    color:#493a31;
+    font-family:Arial,sans-serif;
+}
+.container{max-width:1100px;margin:auto}
+.topo{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+h1{margin:0 0 8px;font-size:28px}
+a{color:#98704f;text-decoration:none;font-weight:bold}
+.card{
+    background:white;
+    padding:22px;
+    border-radius:15px;
+    margin-top:20px;
+    box-shadow:0 5px 20px #0000000a;
+}
+.controles{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    align-items:end;
+}
+.campo{display:flex;flex-direction:column;gap:7px}
+label{font-size:13px;font-weight:bold}
+input,select{
+    padding:12px;
+    border:1px solid #ddd0c4;
+    border-radius:8px;
+    background:white;
+    color:#493a31;
+    min-width:160px;
+}
+button{
+    padding:12px 18px;
+    border:0;
+    border-radius:8px;
+    background:#98704f;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
+button:disabled{opacity:.5}
+.dia-titulo{
+    margin:25px 0 12px;
+    font-size:17px;
+    font-weight:bold;
+    color:#75543c;
+}
+.agendamento{
+    border:1px solid #eadfd5;
+    border-left:5px solid #b89572;
+    border-radius:10px;
+    padding:15px;
+    margin-bottom:12px;
+    display:flex;
+    justify-content:space-between;
+    gap:15px;
+    flex-wrap:wrap;
+}
+.horario{font-size:19px;font-weight:bold;color:#765438}
+.detalhes{line-height:1.8;font-size:14px}
+.status{min-width:180px}
+.vazio{text-align:center;padding:35px;color:#887b70}
+#mensagem{margin-top:15px;font-size:14px}
+@media(max-width:600px){
+    body{padding:15px}
+    .card{padding:16px}
+    .controles{flex-direction:column;align-items:stretch}
+    input,select{width:100%}
+    .status{width:100%}
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+    <div class="topo">
+        <div>
+            <h1>Agenda</h1>
+            <p>Gerencie os horários e atendimentos do salão.</p>
+        </div>
+        <a href="painel.html">← Voltar ao painel</a>
+    </div>
+
+    <div class="card">
+        <div class="controles">
+
+            <div class="campo">
+                <label>Visualização</label>
+                <select id="visualizacao">
+                    <option value="dia">Diária</option>
+                    <option value="semana">Semanal</option>
+                    <option value="mes">Mensal</option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label>Data de referência</label>
+                <input type="date" id="dataReferencia">
+            </div>
+
+            <button id="btnAtualizar">Consultar agenda</button>
+
+        </div>
+
+        <div id="mensagem"></div>
+    </div>
+
+    <div class="card">
+        <h2 id="tituloAgenda">Agendamentos</h2>
+        <div id="listaAgenda">
+            <div class="vazio">Carregando agenda...</div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+const bb = window.beautybookSupabase;
+
+let empresaId = null;
+let agendamentos = [];
+
+const dataReferencia = document.getElementById("dataReferencia");
+const visualizacao = document.getElementById("visualizacao");
+const listaAgenda = document.getElementById("listaAgenda");
+const mensagem = document.getElementById("mensagem");
+const tituloAgenda = document.getElementById("tituloAgenda");
+
+const statusPermitidos = [
+    "pendente",
+    "confirmado",
+    "em_atendimento",
+    "concluido",
+    "cancelado",
+    "nao_compareceu"
+];
+
+const nomesStatus = {
+    pendente: "Pendente",
+    confirmado: "Confirmado",
+    em_atendimento: "Em atendimento",
+    concluido: "Concluído",
+    cancelado: "Cancelado",
+    nao_compareceu: "Não compareceu"
+};
+
+function dataLocal(data) {
+    const ano = data.getFullYear();
+    const mes = String(data.getMonth() + 1).padStart(2, "0");
+    const dia = String(data.getDate()).padStart(2, "0");
+    return `${ano}-${mes}-${dia}`;
+}
+
+function formatarData(valor) {
+    const partes = valor.split("-");
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
+
+function obterPeriodo() {
+    const partes = dataReferencia.value.split("-").map(Number);
+    const referencia = new Date(partes[0], partes[1] - 1, partes[2]);
+
+    let inicio = new Date(referencia);
+    let fim = new Date(referencia);
+
+    if (visualizacao.value === "semana") {
+        const diaSemana = inicio.getDay();
+        const diferenca = diaSemana === 0 ? -6 : 1 - diaSemana;
+        inicio.setDate(inicio.getDate() + diferenca);
+        fim = new Date(inicio);
+        fim.setDate(fim.getDate() + 7);
+    } else if (visualizacao.value === "mes") {
+        inicio = new Date(referencia.getFullYear(), referencia.getMonth(), 1);
+        fim = new Date(referencia.getFullYear(), referencia.getMonth() + 1, 1);
+    } else {
+        fim.setDate(fim.getDate() + 1);
+    }
+
+    return {
+        inicio: dataLocal(inicio),
+        fim: dataLocal(fim)
+    };
+}
+
+async function iniciarAgenda() {
+    const { data: { session }, error } = await bb.auth.getSession();
+
+    if (error || !session) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    const { data: membro, error: erroMembro } = await bb
+        .from("membros_empresa")
+        .select("empresa_id")
+        .eq("user_id", session.user.id)
+        .eq("ativo", true)
+        .single();
+
+    if (erroMembro || !membro) {
+        mensagem.textContent = "Não foi possível identificar o salão.";
+        return;
+    }
+
+    empresaId = membro.empresa_id;
+
+    dataReferencia.value = dataLocal(new Date());
+
+    await carregarAgenda();
+}
+
+async function carregarAgenda() {
+    mensagem.textContent = "Consultando agendamentos...";
+    listaAgenda.innerHTML = "";
+
+    const periodo = obterPeriodo();
+
+    const { data, error } = await bb
+        .from("agendamentos")
+        .select("*")
+        .eq("empresa_id", empresaId)
+        .gte("data", periodo.inicio)
+        .lt("data", periodo.fim)
+        .order("data")
+        .order("hora_inicio");
+
+    if (error) {
+        mensagem.textContent = "Erro ao carregar agenda: " + error.message;
+        return;
+    }
+
+    agendamentos = data || [];
+
+    await buscarInformacoesRelacionadas();
+}
+
+async function buscarInformacoesRelacionadas() {
+    const clientes = {};
+    const profissionais = {};
+    const servicos = {};
+
+    const clienteIds = [...new Set(agendamentos.map(a => a.cliente_id))];
+    const profissionalIds = [...new Set(agendamentos.map(a => a.profissional_id))];
+    const servicoIds = [...new Set(agendamentos.map(a => a.servico_id))];
+
+    if (clienteIds.length) {
+        const { data, error } = await bb
+            .from("clientes")
+            .select("id,nome,telefone")
+            .eq("empresa_id", empresaId)
+            .in("id", clienteIds);
+
+        if (error) {
+            mensagem.textContent = "Erro ao consultar clientes: " + error.message;
+            return;
+        }
+
+        (data || []).forEach(item => clientes[item.id] = item);
+    }
+
+    if (profissionalIds.length) {
+        const { data, error } = await bb
+            .from("profissionais")
+            .select("id,nome")
+            .eq("empresa_id", empresaId)
+            .in("id", profissionalIds);
+
+        if (error) {
+            mensagem.textContent = "Erro ao consultar profissionais: " + error.message;
+            return;
+        }
+
+        (data || []).forEach(item => profissionais[item.id] = item);
+    }
+
+    if (servicoIds.length) {
+        const { data, error } = await bb
+            .from("servicos")
+            .select("id,nome")
+            .eq("empresa_id", empresaId)
+            .in("id", servicoIds);
+
+        if (error) {
+            mensagem.textContent = "Erro ao consultar serviços: " + error.message;
+            return;
+        }
+
+        (data || []).forEach(item => servicos[item.id] = item);
+    }
+
+    renderizarAgenda(clientes, profissionais, servicos);
+}
+
+function criarTexto(tag, texto, classe) {
+    const elemento = document.createElement(tag);
+    elemento.textContent = texto;
+    if (classe) elemento.className = classe;
+    return elemento;
+}
+
+function renderizarAgenda(clientes, profissionais, servicos) {
+    listaAgenda.innerHTML = "";
+    mensagem.textContent = "";
+
+    const modo = visualizacao.value;
+    tituloAgenda.textContent =
+        modo === "dia" ? "Agenda do dia" :
+        modo === "semana" ? "Agenda da semana" :
+        "Agenda do mês";
+
+    if (!agendamentos.length) {
+        listaAgenda.appendChild(
+            criarTexto("div", "Nenhum agendamento encontrado neste período.", "vazio")
+        );
+        return;
+    }
+
+    let dataAtual = "";
+
+    agendamentos.forEach(agendamento => {
+        if (dataAtual !== agendamento.data) {
+            dataAtual = agendamento.data;
+
+            listaAgenda.appendChild(
+                criarTexto("div", formatarData(dataAtual), "dia-titulo")
+            );
+        }
+
+        const cliente = clientes[agendamento.cliente_id];
+        const profissional = profissionais[agendamento.profissional_id];
+        const servico = servicos[agendamento.servico_id];
+
+        const card = document.createElement("div");
+        card.className = "agendamento";
+
+        const informacoes = document.createElement("div");
+
+        informacoes.appendChild(
+            criarTexto(
+                "div",
+                `${agendamento.hora_inicio.slice(0,5)} às ${agendamento.hora_fim.slice(0,5)}`,
+                "horario"
+            )
+        );
+
+        informacoes.appendChild(
+            criarTexto("div", "Cliente: " + (cliente?.nome || "Não encontrado"), "detalhes")
+        );
+
+        informacoes.appendChild(
+            criarTexto("div", "Telefone: " + (cliente?.telefone || "Não informado"), "detalhes")
+        );
+
+        informacoes.appendChild(
+            criarTexto("div", "Serviço: " + (servico?.nome || "Não encontrado"), "detalhes")
+        );
+
+        informacoes.appendChild(
+            criarTexto("div", "Profissional: " + (profissional?.nome || "Não encontrado"), "detalhes")
+        );
+
+        informacoes.appendChild(
+            criarTexto(
+                "div",
+                "Valor: " + Number(agendamento.valor).toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL"
+                }),
+                "detalhes"
+            )
+        );
+
+        const controle = document.createElement("div");
+        controle.className = "campo";
+
+        controle.appendChild(criarTexto("label", "Situação"));
+
+        const seletor = document.createElement("select");
+        seletor.className = "status";
+
+        statusPermitidos.forEach(status => {
+            const opcao = document.createElement("option");
+            opcao.value = status;
+            opcao.textContent = nomesStatus[status];
+            seletor.appendChild(opcao);
+        });
+
+        seletor.value = agendamento.status;
+
+        seletor.addEventListener("change", async () => {
+            seletor.disabled = true;
+            mensagem.textContent = "Atualizando situação...";
+
+            const { error } = await bb
+                .from("agendamentos")
+                .update({ status: seletor.value })
+                .eq("id", agendamento.id)
+                .eq("empresa_id", empresaId);
+
+            if (error) {
+                seletor.value = agendamento.status;
+                mensagem.textContent = "Erro ao atualizar: " + error.message;
+            } else {
+                agendamento.status = seletor.value;
+                mensagem.textContent = "Situação atualizada com sucesso!";
+            }
+
+            seletor.disabled = false;
+        });
+
+        controle.appendChild(seletor);
+        card.append(informacoes, controle);
+        listaAgenda.appendChild(card);
+    });
+
+    mensagem.textContent = agendamentos.length + " agendamento(s) encontrado(s).";
+}
+
+document.getElementById("btnAtualizar").addEventListener("click", carregarAgenda);
+dataReferencia.addEventListener("change", carregarAgenda);
+visualizacao.addEventListener("change", carregarAgenda);
+
+iniciarAgenda();
+</script>
+</body>
+</html>
