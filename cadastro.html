@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro | BeautyBook</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 25px 15px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f7f1ed;
+            font-family: Poppins, sans-serif;
+            color: #493b35;
+        }
+
+        .cadastro {
+            width: 100%;
+            max-width: 470px;
+            padding: 32px;
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 12px 40px #60473518;
+        }
+
+        h1 {
+            text-align: center;
+            color: #604735;
+            margin: 0;
+            font-size: 30px;
+        }
+
+        h1 span {
+            color: #b89572;
+        }
+
+        .subtitulo {
+            text-align: center;
+            color: #887d76;
+            font-size: 14px;
+            margin: 5px 0 25px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin: 13px 0 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e5dcd5;
+            border-radius: 9px;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #b89572;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 22px;
+            border: none;
+            border-radius: 9px;
+            background: #604735;
+            color: white;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: .6;
+            cursor: wait;
+        }
+
+        #mensagem {
+            margin-top: 17px;
+            font-size: 13px;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .voltar {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #80644f;
+            font-size: 13px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="cadastro">
+    <h1>Beauty<span>Book</span></h1>
+    <p class="subtitulo">Cadastre seu salão e comece a organizar seus atendimentos.</p>
+
+    <form id="formCadastro">
+
+        <label for="nomeSalao">Nome do salão</label>
+        <input id="nomeSalao" type="text" required maxlength="100"
+               placeholder="Ex.: Studio Beleza">
+
+        <label for="nomeResponsavel">Nome do responsável</label>
+        <input id="nomeResponsavel" type="text" required maxlength="100"
+               placeholder="Seu nome completo">
+
+        <label for="telefone">WhatsApp</label>
+        <input id="telefone" type="tel" required maxlength="20"
+               placeholder="(21) 99999-9999">
+
+        <label for="email">E-mail</label>
+        <input id="email" type="email" required
+               placeholder="seuemail@exemplo.com">
+
+        <label for="senha">Crie uma senha</label>
+        <input id="senha" type="password" required minlength="8"
+               placeholder="Mínimo de 8 caracteres">
+
+        <label for="confirmarSenha">Confirme sua senha</label>
+        <input id="confirmarSenha" type="password" required minlength="8"
+               placeholder="Digite a senha novamente">
+
+        <button type="submit" id="btnCadastrar">
+            Criar minha conta
+        </button>
+
+        <div id="mensagem" role="status"></div>
+    </form>
+
+    <a class="voltar" href="index.html">Voltar ao início</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+
+<script>
+const form = document.getElementById("formCadastro");
+const mensagem = document.getElementById("mensagem");
+const botao = document.getElementById("btnCadastrar");
+
+form.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const nomeSalao = document.getElementById("nomeSalao").value.trim();
+    const responsavel = document.getElementById("nomeResponsavel").value.trim();
+    const telefone = document.getElementById("telefone").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const senha = document.getElementById("senha").value;
+    const confirmar = document.getElementById("confirmarSenha").value;
+
+    mensagem.textContent = "";
+    mensagem.style.color = "#a04465";
+
+    if (senha !== confirmar) {
+        mensagem.textContent = "As senhas não são iguais.";
+        return;
+    }
+
+    if (senha.length < 8) {
+        mensagem.textContent = "A senha precisa ter pelo menos 8 caracteres.";
+        return;
+    }
+
+    botao.disabled = true;
+    botao.textContent = "Enviando cadastro...";
+
+    try {
+        const { data, error } =
+            await window.beautybookSupabase.auth.signUp({
+                email: email,
+                password: senha,
+                options: {
+                    emailRedirectTo:
+                        "https://staron-line.github.io/salao_demo/",
+                    data: {
+                        nome_salao: nomeSalao,
+                        nome_responsavel: responsavel,
+                        telefone: telefone
+                    }
+                }
+            });
+
+        if (error) throw error;
+
+        mensagem.style.color = "#287a4b";
+        mensagem.textContent =
+            "Cadastro recebido! Verifique seu e-mail e clique no link de confirmação para continuar.";
+
+        form.reset();
+
+    } catch (error) {
+        mensagem.textContent =
+            "Não foi possível realizar o cadastro: " + error.message;
+    } finally {
+        botao.disabled = false;
+        botao.textContent = "Criar minha conta";
+    }
+});
+</script>
+
+</body>
+</html>
