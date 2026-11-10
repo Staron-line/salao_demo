@@ -1,0 +1,473 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profissionais | BeautyBook</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body {
+            background: #f7f2ec;
+            color: #604735;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        .topo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .topo h1 {
+            margin: 0;
+        }
+
+        .voltar {
+            color: #604735;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 14px;
+            margin-bottom: 22px;
+            box-shadow: 0 4px 18px #60473512;
+        }
+
+        .formulario {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .campo {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .campo label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .campo input {
+            padding: 12px;
+            border: 1px solid #ddd0c2;
+            border-radius: 8px;
+            font-size: 15px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .campo-completo {
+            grid-column: 1 / -1;
+        }
+
+        .botao {
+            background: #604735;
+            color: white;
+            border: none;
+            padding: 13px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .botao:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        .botao-secundario {
+            background: #eee5dc;
+            color: #604735;
+            border: none;
+            padding: 9px 13px;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        .lista {
+            display: grid;
+            gap: 12px;
+        }
+
+        .profissional {
+            border: 1px solid #eee5dc;
+            padding: 16px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .profissional h3 {
+            margin: 0 0 7px;
+        }
+
+        .profissional p {
+            margin: 4px 0;
+            font-size: 14px;
+        }
+
+        .status {
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .ativo {
+            color: #287a4b;
+        }
+
+        .inativo {
+            color: #a04465;
+        }
+
+        #mensagem {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 14px;
+            }
+
+            .formulario {
+                grid-template-columns: 1fr;
+            }
+
+            .campo-completo {
+                grid-column: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="topo">
+        <div>
+            <h1>Profissionais</h1>
+            <p>Gerencie a equipe do seu salão.</p>
+        </div>
+
+        <a class="voltar" href="painel.html">← Voltar ao painel</a>
+    </div>
+
+    <section class="card">
+        <h2 id="tituloFormulario">Cadastrar profissional</h2>
+
+        <form id="formProfissional">
+
+            <div class="formulario">
+
+                <div class="campo">
+                    <label for="nome">Nome *</label>
+                    <input id="nome" type="text" required>
+                </div>
+
+                <div class="campo">
+                    <label for="telefone">Telefone</label>
+                    <input id="telefone" type="tel">
+                </div>
+
+                <div class="campo">
+                    <label for="email">E-mail</label>
+                    <input id="email" type="email">
+                </div>
+
+                <div class="campo">
+                    <label for="especialidade">Especialidade</label>
+                    <input id="especialidade" type="text"
+                           placeholder="Ex.: Cabeleireiro">
+                </div>
+
+                <div class="campo">
+                    <label for="comissao">Comissão (%)</label>
+                    <input id="comissao" type="number"
+                           min="0" max="100" step="0.01"
+                           placeholder="Ex.: 30">
+                </div>
+
+                <div class="campo">
+                    <label for="ativo">Situação</label>
+                    <select id="ativo" style="padding:12px;border:1px solid #ddd0c2;border-radius:8px;">
+                        <option value="true">Ativo</option>
+                        <option value="false">Inativo</option>
+                    </select>
+                </div>
+
+                <div class="campo campo-completo">
+                    <button class="botao" id="btnSalvar" type="submit">
+                        Salvar profissional
+                    </button>
+                    <button class="botao-secundario" id="btnCancelar"
+                            type="button" hidden>
+                        Cancelar edição
+                    </button>
+                </div>
+
+            </div>
+
+        </form>
+
+        <div id="mensagem"></div>
+    </section>
+
+    <section class="card">
+        <h2>Equipe cadastrada</h2>
+        <div id="listaProfissionais" class="lista">
+            Carregando profissionais...
+        </div>
+    </section>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+
+<script>
+const bb = window.beautybookSupabase;
+
+const form = document.getElementById("formProfissional");
+const mensagem = document.getElementById("mensagem");
+const lista = document.getElementById("listaProfissionais");
+const botaoSalvar = document.getElementById("btnSalvar");
+const botaoCancelar = document.getElementById("btnCancelar");
+
+let empresaId = null;
+let profissionalEditando = null;
+
+function mostrarMensagem(texto, sucesso = false) {
+    mensagem.style.color = sucesso ? "#287a4b" : "#a04465";
+    mensagem.textContent = texto;
+}
+
+function limparFormulario() {
+    form.reset();
+    profissionalEditando = null;
+    document.getElementById("tituloFormulario").textContent =
+        "Cadastrar profissional";
+    botaoSalvar.textContent = "Salvar profissional";
+    botaoCancelar.hidden = true;
+}
+
+async function iniciar() {
+    try {
+        const { data: sessaoData, error: erroSessao } =
+            await bb.auth.getSession();
+
+        if (erroSessao) throw erroSessao;
+
+        const usuario = sessaoData.session?.user;
+
+        if (!usuario) {
+            window.location.replace("login.html");
+            return;
+        }
+
+        const { data: membro, error: erroMembro } = await bb
+            .from("membros_empresa")
+            .select("empresa_id")
+            .eq("user_id", usuario.id)
+            .eq("ativo", true)
+            .limit(1)
+            .maybeSingle();
+
+        if (erroMembro) throw erroMembro;
+
+        if (!membro) {
+            throw new Error("Empresa não encontrada para este usuário.");
+        }
+
+        empresaId = membro.empresa_id;
+
+        await carregarProfissionais();
+
+    } catch (error) {
+        mostrarMensagem("Erro ao carregar: " + error.message);
+        lista.textContent = "Não foi possível carregar a equipe.";
+    }
+}
+
+async function carregarProfissionais() {
+    lista.textContent = "Carregando...";
+
+    const { data, error } = await bb
+        .from("profissionais")
+        .select("*")
+        .eq("empresa_id", empresaId)
+        .order("nome", { ascending: true });
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+        lista.textContent = "Nenhum profissional cadastrado ainda.";
+        return;
+    }
+
+    lista.innerHTML = "";
+
+    data.forEach(profissional => {
+        const item = document.createElement("div");
+        item.className = "profissional";
+
+        const informacoes = document.createElement("div");
+
+        const nome = document.createElement("h3");
+        nome.textContent = profissional.nome;
+
+        const especialidade = document.createElement("p");
+        especialidade.textContent =
+            "Especialidade: " + (profissional.especialidade || "Não informada");
+
+        const telefone = document.createElement("p");
+        telefone.textContent =
+            "Telefone: " + (profissional.telefone || "Não informado");
+
+        const comissao = document.createElement("p");
+        comissao.textContent =
+            "Comissão: " + (profissional.percentual_comissao ?? 0) + "%";
+
+        const status = document.createElement("p");
+        status.className = "status " +
+            (profissional.ativo ? "ativo" : "inativo");
+        status.textContent = profissional.ativo ? "Ativo" : "Inativo";
+
+        informacoes.append(nome, especialidade, telefone, comissao, status);
+
+        const acoes = document.createElement("div");
+
+        const editar = document.createElement("button");
+        editar.className = "botao-secundario";
+        editar.textContent = "Editar";
+        editar.addEventListener("click", () => editarProfissional(profissional));
+
+        acoes.appendChild(editar);
+        item.append(informacoes, acoes);
+        lista.appendChild(item);
+    });
+}
+
+form.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    if (!empresaId) {
+        mostrarMensagem("Empresa não identificada.");
+        return;
+    }
+
+    const nome = document.getElementById("nome").value.trim();
+    const telefone = document.getElementById("telefone").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const especialidade = document.getElementById("especialidade").value.trim();
+    const comissaoTexto = document.getElementById("comissao").value;
+    const comissao = comissaoTexto === "" ? null : Number(comissaoTexto);
+    const ativo = document.getElementById("ativo").value === "true";
+
+    if (!nome) {
+        mostrarMensagem("Informe o nome do profissional.");
+        return;
+    }
+
+    if (comissao !== null &&
+        (!Number.isFinite(comissao) || comissao < 0 || comissao > 100)) {
+        mostrarMensagem("A comissão deve estar entre 0 e 100.");
+        return;
+    }
+
+    const dados = {
+        nome,
+        telefone: telefone || null,
+        email: email || null,
+        especialidade: especialidade || null,
+        percentual_comissao: comissao,
+        ativo
+    };
+
+    botaoSalvar.disabled = true;
+    botaoSalvar.textContent = "Salvando...";
+
+    try {
+        let resultado;
+
+        if (profissionalEditando) {
+            resultado = await bb
+                .from("profissionais")
+                .update(dados)
+                .eq("id", profissionalEditando)
+                .eq("empresa_id", empresaId);
+        } else {
+            resultado = await bb
+                .from("profissionais")
+                .insert({
+                    ...dados,
+                    empresa_id: empresaId
+                });
+        }
+
+        if (resultado.error) throw resultado.error;
+
+        mostrarMensagem("Profissional salvo com sucesso!", true);
+        limparFormulario();
+        await carregarProfissionais();
+
+    } catch (error) {
+        mostrarMensagem("Erro ao salvar: " + error.message);
+    } finally {
+        botaoSalvar.disabled = false;
+        botaoSalvar.textContent = profissionalEditando
+            ? "Salvar alterações"
+            : "Salvar profissional";
+    }
+});
+
+function editarProfissional(profissional) {
+    profissionalEditando = profissional.id;
+
+    document.getElementById("nome").value = profissional.nome || "";
+    document.getElementById("telefone").value = profissional.telefone || "";
+    document.getElementById("email").value = profissional.email || "";
+    document.getElementById("especialidade").value =
+        profissional.especialidade || "";
+    document.getElementById("comissao").value =
+        profissional.percentual_comissao ?? "";
+    document.getElementById("ativo").value =
+        String(profissional.ativo);
+
+    document.getElementById("tituloFormulario").textContent =
+        "Editar profissional";
+    botaoSalvar.textContent = "Salvar alterações";
+    botaoCancelar.hidden = false;
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+botaoCancelar.addEventListener("click", limparFormulario);
+
+iniciar();
+</script>
+
+</body>
+</html>
