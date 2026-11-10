@@ -51,6 +51,7 @@ body {
 }
 .campo textarea { min-height: 85px; resize: vertical; }
 .campo-completo { grid-column: 1 / -1; }
+
 .botao {
     background: #604735;
     color: white;
@@ -61,6 +62,7 @@ body {
     font-weight: bold;
 }
 .botao:disabled { opacity: .6; cursor: not-allowed; }
+
 .botao-secundario {
     background: #eee5dc;
     color: #604735;
@@ -69,7 +71,9 @@ body {
     border-radius: 7px;
     cursor: pointer;
 }
+
 .lista { display: grid; gap: 12px; }
+
 .servico {
     border: 1px solid #eee5dc;
     padding: 16px;
@@ -80,11 +84,45 @@ body {
     gap: 12px;
     flex-wrap: wrap;
 }
+
+.servico-conteudo {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    flex: 1;
+    min-width: 220px;
+}
+
 .servico h3 { margin: 0 0 7px; }
 .servico p { margin: 4px 0; font-size: 14px; }
+
+.servico-foto {
+    width: 105px;
+    height: 105px;
+    object-fit: cover;
+    border-radius: 9px;
+    background: #f3e9df;
+    flex-shrink: 0;
+}
+
+.sem-foto {
+    width: 105px;
+    height: 105px;
+    border-radius: 9px;
+    background: #f3e9df;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8b7664;
+    font-size: 12px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
 .status { font-weight: bold; font-size: 13px; }
 .ativo { color: #287a4b; }
 .inativo { color: #a04465; }
+
 .profissionais-opcoes {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -93,28 +131,72 @@ body {
     border: 1px solid #eee5dc;
     border-radius: 8px;
 }
+
 .profissional-opcao {
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 14px;
 }
+
 .profissional-opcao input { width: auto; }
+
 .acoes {
     display: flex;
     gap: 10px;
     margin-top: 12px;
     flex-wrap: wrap;
 }
+
 #mensagem { margin-top: 15px; font-size: 14px; }
+
+.previa-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+#previaImagem {
+    width: 150px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #ddd0c2;
+    background: #f7f2ec;
+}
+
+.texto-ajuda {
+    color: #806e5d;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+#removerImagem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: normal;
+}
+
+#removerImagem input { width: auto; }
+
 [hidden] { display: none !important; }
 
 @media (max-width: 600px) {
     body { padding: 14px; }
+
     .formulario, .profissionais-opcoes {
         grid-template-columns: 1fr;
     }
+
     .campo-completo { grid-column: auto; }
+
+    .servico-conteudo {
+        flex-direction: column;
+    }
 }
 </style>
 </head>
@@ -145,13 +227,15 @@ body {
                 <div class="campo">
                     <label for="preco">Preço (R$) *</label>
                     <input id="preco" type="number"
-                           min="0" step="0.01" placeholder="Ex.: 50,00" required>
+                           min="0" step="0.01"
+                           placeholder="Ex.: 50,00" required>
                 </div>
 
                 <div class="campo">
                     <label for="duracao">Duração (minutos) *</label>
                     <input id="duracao" type="number"
-                           min="1" step="1" placeholder="Ex.: 60" required>
+                           min="1" step="1"
+                           placeholder="Ex.: 60" required>
                 </div>
 
                 <div class="campo">
@@ -168,9 +252,41 @@ body {
                         placeholder="Descreva o serviço..."></textarea>
                 </div>
 
+                <!-- FOTO DO SERVIÇO -->
+                <div class="campo campo-completo">
+                    <label for="imagemServico">Foto do serviço</label>
+
+                    <input
+                        id="imagemServico"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                    >
+
+                    <div class="texto-ajuda">
+                        Escolha uma foto JPG, PNG ou WebP.
+                        Tamanho máximo: 5 MB.
+                    </div>
+
+                    <div class="previa-container">
+                        <img id="previaImagem"
+                             alt="Pré-visualização da foto"
+                             hidden>
+
+                        <span id="semImagem" class="texto-ajuda">
+                            Nenhuma foto selecionada.
+                        </span>
+                    </div>
+
+                    <label id="removerImagem" hidden>
+                        <input type="checkbox" id="excluirImagem">
+                        Remover a foto atual deste serviço
+                    </label>
+                </div>
+
                 <div class="campo campo-completo">
                     <label>Profissionais que realizam este serviço</label>
-                    <div id="opcoesProfissionais" class="profissionais-opcoes">
+                    <div id="opcoesProfissionais"
+                         class="profissionais-opcoes">
                         Carregando profissionais...
                     </div>
                 </div>
@@ -179,7 +295,9 @@ body {
                     <button class="botao" id="btnSalvar" type="submit">
                         Salvar serviço
                     </button>
-                    <button class="botao-secundario" id="btnCancelar"
+
+                    <button class="botao-secundario"
+                            id="btnCancelar"
                             type="button" hidden>
                         Cancelar edição
                     </button>
@@ -224,6 +342,9 @@ body {
 <script>
 const bb = window.beautybookSupabase;
 
+const BUCKET = "beautybook-servicos";
+const TAMANHO_MAXIMO = 5 * 1024 * 1024;
+
 const form = document.getElementById("formServico");
 const mensagem = document.getElementById("mensagem");
 const lista = document.getElementById("listaServicos");
@@ -231,20 +352,58 @@ const opcoes = document.getElementById("opcoesProfissionais");
 const botaoSalvar = document.getElementById("btnSalvar");
 const botaoCancelar = document.getElementById("btnCancelar");
 
+const campoImagem = document.getElementById("imagemServico");
+const previaImagem = document.getElementById("previaImagem");
+const semImagem = document.getElementById("semImagem");
+const excluirImagem = document.getElementById("excluirImagem");
+const removerImagem = document.getElementById("removerImagem");
+
 let empresaId = null;
 let servicoEditando = null;
 let servicos = [];
 let profissionais = [];
 let vinculos = [];
+let imagemAtualPath = null;
+let imagemTemporariaUrl = null;
 
 function mostrarMensagem(texto, sucesso = false) {
     mensagem.style.color = sucesso ? "#287a4b" : "#a04465";
     mensagem.textContent = texto;
 }
 
+function limparPreviaTemporaria() {
+    if (imagemTemporariaUrl) {
+        URL.revokeObjectURL(imagemTemporariaUrl);
+        imagemTemporariaUrl = null;
+    }
+}
+
+function mostrarPrevia(url) {
+    limparPreviaTemporaria();
+
+    if (url) {
+        previaImagem.src = url;
+        previaImagem.hidden = false;
+        semImagem.hidden = true;
+    } else {
+        previaImagem.removeAttribute("src");
+        previaImagem.hidden = true;
+        semImagem.hidden = false;
+    }
+}
+
 function limparFormulario() {
+    limparPreviaTemporaria();
     form.reset();
+
     servicoEditando = null;
+    imagemAtualPath = null;
+
+    campoImagem.value = "";
+    excluirImagem.checked = false;
+    removerImagem.hidden = true;
+
+    mostrarPrevia(null);
 
     document.getElementById("tituloFormulario").textContent =
         "Cadastrar serviço";
@@ -255,6 +414,8 @@ function limparFormulario() {
     document.querySelectorAll(
         "#opcoesProfissionais input[type='checkbox']"
     ).forEach(campo => campo.checked = false);
+
+    mensagem.textContent = "";
 }
 
 async function iniciar() {
@@ -333,6 +494,83 @@ function mostrarOpcoesProfissionais() {
     });
 }
 
+/* Gera endereço temporário para imagem do bucket privado */
+async function obterUrlImagem(caminho) {
+    if (!caminho) return null;
+
+    const { data, error } = await bb.storage
+        .from(BUCKET)
+        .createSignedUrl(caminho, 3600);
+
+    if (error) {
+        console.error("Erro ao gerar imagem:", error.message);
+        return null;
+    }
+
+    return data.signedUrl;
+}
+
+/* Envia a foto para a pasta da empresa e do serviço */
+async function enviarImagem(servicoId, arquivo) {
+    if (!arquivo) return null;
+
+    const tiposPermitidos = [
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+    ];
+
+    if (!tiposPermitidos.includes(arquivo.type)) {
+        throw new Error("Formato inválido. Use JPG, PNG ou WebP.");
+    }
+
+    if (arquivo.size > TAMANHO_MAXIMO) {
+        throw new Error("A imagem ultrapassa o limite de 5 MB.");
+    }
+
+    const extensoes = {
+        "image/jpeg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp"
+    };
+
+    const extensao = extensoes[arquivo.type];
+
+    const caminho =
+        empresaId + "/" +
+        servicoId + "/" +
+        crypto.randomUUID() + "." + extensao;
+
+    const { error } = await bb.storage
+        .from(BUCKET)
+        .upload(caminho, arquivo, {
+            cacheControl: "3600",
+            upsert: false,
+            contentType: arquivo.type
+        });
+
+    if (error) throw error;
+
+    return caminho;
+}
+
+/* Remove arquivo antigo do armazenamento */
+async function removerArquivoImagem(caminho) {
+    if (!caminho) return;
+
+    const { error } = await bb.storage
+        .from(BUCKET)
+        .remove([caminho]);
+
+    if (error) {
+        console.error("Não foi possível remover a imagem antiga:", error);
+        mostrarMensagem(
+            "Dados salvos, mas não foi possível remover uma foto antiga: " +
+            error.message
+        );
+    }
+}
+
 async function carregarServicos() {
     lista.textContent = "Carregando serviços...";
 
@@ -355,10 +593,10 @@ async function carregarServicos() {
 
     vinculos = dadosVinculos || [];
 
-    aplicarFiltros();
+    await aplicarFiltros();
 }
 
-function aplicarFiltros() {
+async function aplicarFiltros() {
     const pesquisa = document.getElementById("pesquisaNome")
         .value.trim().toLocaleLowerCase("pt-BR");
 
@@ -381,9 +619,34 @@ function aplicarFiltros() {
         return;
     }
 
-    filtrados.forEach(servico => {
+    for (const servico of filtrados) {
         const item = document.createElement("div");
         item.className = "servico";
+
+        const conteudo = document.createElement("div");
+        conteudo.className = "servico-conteudo";
+
+        if (servico.imagem_path) {
+            const url = await obterUrlImagem(servico.imagem_path);
+
+            if (url) {
+                const foto = document.createElement("img");
+                foto.className = "servico-foto";
+                foto.src = url;
+                foto.alt = "Foto do serviço " + servico.nome;
+                conteudo.appendChild(foto);
+            } else {
+                const semFoto = document.createElement("div");
+                semFoto.className = "sem-foto";
+                semFoto.textContent = "Foto indisponível";
+                conteudo.appendChild(semFoto);
+            }
+        } else {
+            const semFoto = document.createElement("div");
+            semFoto.className = "sem-foto";
+            semFoto.textContent = "Sem foto";
+            conteudo.appendChild(semFoto);
+        }
 
         const informacoes = document.createElement("div");
 
@@ -428,6 +691,8 @@ function aplicarFiltros() {
             nome, descricao, preco, duracao, equipe, status
         );
 
+        conteudo.appendChild(informacoes);
+
         const acoes = document.createElement("div");
         acoes.className = "acoes";
 
@@ -448,9 +713,9 @@ function aplicarFiltros() {
         );
 
         acoes.append(editar, excluir);
-        item.append(informacoes, acoes);
+        item.append(conteudo, acoes);
         lista.appendChild(item);
-    });
+    }
 }
 
 async function salvarVinculos(servicoId, profissionaisIds) {
@@ -491,6 +756,9 @@ form.addEventListener("submit", async function(event) {
     const descricao = document.getElementById("descricao").value.trim();
     const ativo = document.getElementById("ativo").value === "true";
 
+    const arquivo = campoImagem.files[0] || null;
+    const removerFoto = excluirImagem.checked;
+
     const profissionaisSelecionados = Array.from(
         document.querySelectorAll(
             "#opcoesProfissionais input[type='checkbox']:checked"
@@ -512,8 +780,23 @@ form.addEventListener("submit", async function(event) {
         return;
     }
 
+    if (arquivo) {
+        if (!["image/jpeg", "image/png", "image/webp"].includes(arquivo.type)) {
+            mostrarMensagem("Use uma imagem JPG, PNG ou WebP.");
+            return;
+        }
+
+        if (arquivo.size > TAMANHO_MAXIMO) {
+            mostrarMensagem("A imagem deve ter no máximo 5 MB.");
+            return;
+        }
+    }
+
     botaoSalvar.disabled = true;
     botaoSalvar.textContent = "Salvando...";
+
+    let servicoId = servicoEditando;
+    let caminhoAntigo = imagemAtualPath;
 
     try {
         const dados = {
@@ -523,8 +806,6 @@ form.addEventListener("submit", async function(event) {
             duracao_minutos: duracao,
             ativo
         };
-
-        let servicoId = servicoEditando;
 
         if (servicoEditando) {
             const { error } = await bb
@@ -550,6 +831,33 @@ form.addEventListener("submit", async function(event) {
             servicoId = data.id;
         }
 
+        let novoCaminho = caminhoAntigo;
+
+        if (arquivo) {
+            novoCaminho = await enviarImagem(servicoId, arquivo);
+        } else if (removerFoto) {
+            novoCaminho = null;
+        }
+
+        if (novoCaminho !== caminhoAntigo) {
+            const { error } = await bb
+                .from("servicos")
+                .update({ imagem_path: novoCaminho })
+                .eq("id", servicoId)
+                .eq("empresa_id", empresaId);
+
+            if (error) {
+                if (arquivo && novoCaminho) {
+                    await removerArquivoImagem(novoCaminho);
+                }
+                throw error;
+            }
+
+            if (caminhoAntigo) {
+                await removerArquivoImagem(caminhoAntigo);
+            }
+        }
+
         await salvarVinculos(servicoId, profissionaisSelecionados);
 
         mostrarMensagem("Serviço salvo com sucesso!", true);
@@ -569,8 +877,11 @@ form.addEventListener("submit", async function(event) {
     }
 });
 
-function editarServico(servico) {
+async function editarServico(servico) {
+    limparPreviaTemporaria();
+
     servicoEditando = servico.id;
+    imagemAtualPath = servico.imagem_path || null;
 
     document.getElementById("nome").value = servico.nome || "";
     document.getElementById("preco").value = servico.preco ?? "";
@@ -579,6 +890,18 @@ function editarServico(servico) {
     document.getElementById("descricao").value =
         servico.descricao || "";
     document.getElementById("ativo").value = String(servico.ativo);
+
+    campoImagem.value = "";
+    excluirImagem.checked = false;
+    removerImagem.hidden = !imagemAtualPath;
+
+    if (imagemAtualPath) {
+        mostrarMensagem("Carregando foto do serviço...", true);
+        const url = await obterUrlImagem(imagemAtualPath);
+        mostrarPrevia(url);
+    } else {
+        mostrarPrevia(null);
+    }
 
     const vinculados = vinculos
         .filter(v => v.servico_id === servico.id)
@@ -625,6 +948,10 @@ async function excluirServico(servico) {
 
         if (error) throw error;
 
+        if (servico.imagem_path) {
+            await removerArquivoImagem(servico.imagem_path);
+        }
+
         mostrarMensagem("Serviço excluído com sucesso!", true);
         await carregarServicos();
 
@@ -635,6 +962,45 @@ async function excluirServico(servico) {
         );
     }
 }
+
+/* Pré-visualização da foto escolhida */
+campoImagem.addEventListener("change", function() {
+    const arquivo = campoImagem.files[0];
+
+    if (!arquivo) return;
+
+    if (!["image/jpeg", "image/png", "image/webp"].includes(arquivo.type)) {
+        mostrarMensagem("Formato inválido. Use JPG, PNG ou WebP.");
+        campoImagem.value = "";
+        return;
+    }
+
+    if (arquivo.size > TAMANHO_MAXIMO) {
+        mostrarMensagem("A imagem deve ter no máximo 5 MB.");
+        campoImagem.value = "";
+        return;
+    }
+
+    limparPreviaTemporaria();
+
+    imagemTemporariaUrl = URL.createObjectURL(arquivo);
+    previaImagem.src = imagemTemporariaUrl;
+    previaImagem.hidden = false;
+    semImagem.hidden = true;
+
+    excluirImagem.checked = false;
+    mostrarMensagem("Foto selecionada. Salve o serviço para enviar.", true);
+});
+
+excluirImagem.addEventListener("change", function() {
+    if (excluirImagem.checked) {
+        campoImagem.value = "";
+        mostrarPrevia(null);
+        limparPreviaTemporaria();
+    } else if (imagemAtualPath) {
+        obterUrlImagem(imagemAtualPath).then(mostrarPrevia);
+    }
+});
 
 document.getElementById("pesquisaNome")
     .addEventListener("input", aplicarFiltros);
