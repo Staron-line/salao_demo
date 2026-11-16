@@ -97,8 +97,10 @@ main {
 }
 
 .card p {
-    margin-bottom: 0;
+    margin-bottom: 15px;
     color: var(--muted);
+    line-height: 1.5;
+    min-height: 42px;
 }
 
 #mensagem {
@@ -229,6 +231,10 @@ main {
     padding: 13px 22px;
 }
 
+.btn-salvar:hover {
+    opacity: .88;
+}
+
 .btn-salvar:disabled {
     opacity: .5;
     cursor: not-allowed;
@@ -269,6 +275,10 @@ main {
     #aparencia {
         padding: 18px;
     }
+
+    .card {
+        padding: 18px;
+    }
 }
 </style>
 </head>
@@ -288,39 +298,61 @@ main {
         <p id="tipoAcesso"></p>
     </section>
 
+    <!-- ATALHOS DOS MÓDULOS -->
+
     <div class="informacoes">
 
         <div class="card">
-            <h3>Agenda</h3>
-            <p>Em breve: gerenciamento de horários e agendamentos.</p>
-        </div>
-
-        <div class="card">
-            <h3>Clientes</h3>
-            <p>Em breve: cadastro e histórico de clientes.</p>
+            <h3>Agenda do salão</h3>
+            <p>Visualize e gerencie os agendamentos do estabelecimento.</p>
+            <button class="btn-salvar" onclick="window.location.href='agenda.html'">
+                Abrir agenda
+            </button>
         </div>
 
         <div class="card">
             <h3>Profissionais</h3>
-            <p>Em breve: equipe e horários de trabalho.</p>
+            <p>Cadastre profissionais e gerencie a equipe e os horários.</p>
+            <button class="btn-salvar" onclick="window.location.href='profissionais.html'">
+                Abrir profissionais
+            </button>
         </div>
 
         <div class="card">
             <h3>Serviços</h3>
-            <p>Em breve: serviços e valores do salão.</p>
+            <p>Cadastre e gerencie os serviços, descrições e valores.</p>
+            <button class="btn-salvar" onclick="window.location.href='servicos.html'">
+                Abrir serviços
+            </button>
         </div>
 
         <div class="card">
-            <h3>Financeiro</h3>
-            <p>Em breve: controle de pagamentos e receitas.</p>
+            <h3>Login profissional</h3>
+            <p>Acesso destinado aos profissionais do estabelecimento.</p>
+            <button class="btn-salvar" onclick="window.location.href='login-profissional.html'">
+                Acessar login
+            </button>
+        </div>
+
+        <div class="card">
+            <h3>Agenda pública</h3>
+            <p>Visualize a página utilizada pelos clientes para agendar.</p>
+            <button class="btn-salvar" onclick="window.location.href='agendar.html'">
+                Abrir agenda pública
+            </button>
         </div>
 
         <div class="card">
             <h3>Configurações</h3>
-            <p>Personalize as cores e a aparência do seu salão abaixo.</p>
+            <p>Personalize as cores e a aparência visual do seu salão.</p>
+            <button class="btn-salvar" id="btnAbrirAparencia">
+                Personalizar aparência
+            </button>
         </div>
 
     </div>
+
+    <!-- PERSONALIZAÇÃO VISUAL -->
 
     <section id="aparencia" style="display:none">
 
@@ -595,7 +627,6 @@ async function carregarAparencia() {
     configuracaoDisponivel = true;
     paletaAtual = data.paleta || "customizada";
 
-    // Para registros antigos ou personalizados, preserva as cores existentes.
     if (paletas[paletaAtual]) {
         selecionarPaleta(paletaAtual);
     } else {
@@ -732,7 +763,6 @@ async function carregarPainel() {
 
         mensagem.style.display = "none";
 
-        // A personalização fica disponível apenas ao proprietário.
         if (membro.papel === "proprietario") {
             aparencia.style.display = "block";
             await carregarAparencia();
@@ -746,6 +776,7 @@ async function carregarPainel() {
     }
 }
 
+// Seleção das paletas
 document.querySelectorAll(".paleta").forEach(botao => {
     botao.addEventListener("click", () => {
         selecionarPaleta(botao.dataset.paleta);
@@ -753,8 +784,28 @@ document.querySelectorAll(".paleta").forEach(botao => {
     });
 });
 
+// Salvar aparência
 btnSalvarPaleta.addEventListener("click", salvarPaleta);
 
+// Abrir a área de aparência
+document.getElementById("btnAbrirAparencia").addEventListener(
+    "click",
+    function() {
+        if (aparencia.style.display === "none") {
+            mostrarMensagem(
+                "A personalização da aparência está disponível para o proprietário do salão."
+            );
+            return;
+        }
+
+        aparencia.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
+);
+
+// Sair da conta
 document.getElementById("btnSair").addEventListener(
     "click",
     async function() {
@@ -769,6 +820,7 @@ document.getElementById("btnSair").addEventListener(
     }
 );
 
+// Inicialização do painel
 carregarPainel();
 </script>
 
