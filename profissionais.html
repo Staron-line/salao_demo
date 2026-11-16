@@ -26,6 +26,7 @@ body {
 }
 .topo h1 { margin: 0; }
 .voltar { color: #604735; text-decoration: none; font-weight: bold; }
+
 .card {
     background: white;
     padding: 24px;
@@ -33,6 +34,7 @@ body {
     margin-bottom: 22px;
     box-shadow: 0 4px 18px #60473512;
 }
+
 .formulario {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -40,6 +42,7 @@ body {
 }
 .campo { display: flex; flex-direction: column; gap: 7px; }
 .campo label { font-weight: bold; font-size: 14px; }
+
 .campo input, .campo select {
     padding: 12px;
     border: 1px solid #ddd0c2;
@@ -48,7 +51,9 @@ body {
     width: 100%;
     box-sizing: border-box;
 }
+
 .campo-completo { grid-column: 1 / -1; }
+
 .botao {
     background: #604735;
     color: white;
@@ -59,6 +64,7 @@ body {
     font-weight: bold;
 }
 .botao:disabled { opacity: .6; cursor: not-allowed; }
+
 .botao-secundario {
     background: #eee5dc;
     color: #604735;
@@ -67,7 +73,9 @@ body {
     border-radius: 7px;
     cursor: pointer;
 }
+
 .lista { display: grid; gap: 12px; }
+
 .profissional {
     border: 1px solid #eee5dc;
     padding: 16px;
@@ -78,18 +86,110 @@ body {
     gap: 12px;
     flex-wrap: wrap;
 }
+
 .profissional h3 { margin: 0 0 7px; }
 .profissional p { margin: 4px 0; font-size: 14px; }
+
 .status { font-weight: bold; font-size: 13px; }
 .ativo { color: #287a4b; }
 .inativo { color: #a04465; }
+
 #mensagem { margin-top: 15px; font-size: 14px; }
 [hidden] { display: none !important; }
+
+/* Expediente */
+
+.area-expediente {
+    width: 100%;
+    margin-top: 15px;
+    padding-top: 16px;
+    border-top: 1px solid #eee5dc;
+}
+
+.area-expediente h4 {
+    margin: 0 0 8px;
+    color: #604735;
+}
+
+.expediente-dia {
+    display: grid;
+    grid-template-columns: 120px 1fr 1fr 1fr 1fr auto;
+    gap: 9px;
+    align-items: end;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0e9e2;
+}
+
+.expediente-dia:last-child {
+    border-bottom: none;
+}
+
+.expediente-dia .campo label {
+    font-size: 12px;
+}
+
+.expediente-dia input[type="time"] {
+    width: 100%;
+    min-width: 0;
+    padding: 9px 6px;
+    border: 1px solid #ddd0c2;
+    border-radius: 7px;
+    box-sizing: border-box;
+}
+
+.dia-nome {
+    font-weight: bold;
+    padding-bottom: 10px;
+}
+
+.controle-expediente {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    padding-bottom: 10px;
+}
+
+.controle-expediente input {
+    width: 17px;
+    height: 17px;
+    accent-color: #604735;
+}
+
+.mensagem-expediente {
+    font-size: 13px;
+    margin-top: 12px;
+}
+
+.resumo-expediente {
+    color: #806d5d;
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+@media (max-width: 750px) {
+    .expediente-dia {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        padding: 14px 0;
+    }
+
+    .dia-nome {
+        grid-column: 1 / -1;
+        padding-bottom: 0;
+    }
+
+    .controle-expediente {
+        grid-column: 1 / -1;
+        padding-bottom: 0;
+    }
+}
 
 @media (max-width: 600px) {
     body { padding: 14px; }
     .formulario { grid-template-columns: 1fr; }
     .campo-completo { grid-column: auto; }
+    .card { padding: 17px; }
 }
 </style>
 </head>
@@ -150,6 +250,7 @@ body {
                     <button class="botao" id="btnSalvar" type="submit">
                         Salvar profissional
                     </button>
+
                     <button class="botao-secundario" id="btnCancelar"
                             type="button" hidden>
                         Cancelar edição
@@ -207,6 +308,16 @@ let empresaId = null;
 let profissionalEditando = null;
 let profissionais = [];
 
+const diasSemana = [
+    "Domingo",
+    "Segunda-feira",
+    "Terça-feira",
+    "Quarta-feira",
+    "Quinta-feira",
+    "Sexta-feira",
+    "Sábado"
+];
+
 function mostrarMensagem(texto, sucesso = false) {
     mensagem.style.color = sucesso ? "#287a4b" : "#a04465";
     mensagem.textContent = texto;
@@ -215,8 +326,10 @@ function mostrarMensagem(texto, sucesso = false) {
 function limparFormulario() {
     form.reset();
     profissionalEditando = null;
+
     document.getElementById("tituloFormulario").textContent =
         "Cadastrar profissional";
+
     botaoSalvar.textContent = "Salvar profissional";
     botaoCancelar.hidden = true;
 }
@@ -247,6 +360,7 @@ async function iniciar() {
         if (!membro) throw new Error("Empresa não encontrada.");
 
         empresaId = membro.empresa_id;
+
         await carregarProfissionais();
 
     } catch (error) {
@@ -323,6 +437,7 @@ function aplicarFiltros() {
         const status = document.createElement("p");
         status.className = "status " +
             (profissional.ativo ? "ativo" : "inativo");
+
         status.textContent = profissional.ativo ? "Ativo" : "Inativo";
 
         informacoes.append(nome, especialidade, telefone, comissao, status);
@@ -336,25 +451,288 @@ function aplicarFiltros() {
         const editar = document.createElement("button");
         editar.className = "botao-secundario";
         editar.textContent = "Editar";
+
         editar.addEventListener("click", () =>
-        editarProfissional(profissional)
-);
+            editarProfissional(profissional)
+        );
 
-const excluir = document.createElement("button");
-excluir.className = "botao-secundario";
-excluir.textContent = "Excluir";
-excluir.style.background = "#fbe5e5";
-excluir.style.color = "#a04465";
+        const excluir = document.createElement("button");
+        excluir.className = "botao-secundario";
+        excluir.textContent = "Excluir";
+        excluir.style.background = "#fbe5e5";
+        excluir.style.color = "#a04465";
 
-excluir.addEventListener("click", () =>
-    excluirProfissional(profissional)
-);
+        excluir.addEventListener("click", () =>
+            excluirProfissional(profissional)
+        );
 
-acoes.append(editar, excluir);
-item.append(informacoes, acoes);
-lista.appendChild(item);
+        const expediente = document.createElement("button");
+        expediente.className = "botao-secundario";
+        expediente.textContent = "Configurar expediente";
 
-  });
+        const areaExpediente = document.createElement("div");
+        areaExpediente.className = "area-expediente";
+        areaExpediente.hidden = true;
+
+        expediente.addEventListener("click", async () => {
+            areaExpediente.hidden = !areaExpediente.hidden;
+
+            if (!areaExpediente.hidden) {
+                expediente.textContent = "Fechar expediente";
+                await montarExpediente(profissional, areaExpediente);
+            } else {
+                expediente.textContent = "Configurar expediente";
+            }
+        });
+
+        acoes.append(editar, excluir, expediente);
+
+        item.append(informacoes, acoes, areaExpediente);
+        lista.appendChild(item);
+    });
+}
+
+async function montarExpediente(profissional, area) {
+    area.innerHTML = "Carregando horários...";
+
+    try {
+        const { data, error } = await bb
+            .from("horarios_trabalho")
+            .select("*")
+            .eq("empresa_id", empresaId)
+            .eq("profissional_id", profissional.id)
+            .order("dia_semana", { ascending: true });
+
+        if (error) throw error;
+
+        const horarios = data || [];
+
+        area.innerHTML = "";
+
+        const titulo = document.createElement("h4");
+        titulo.textContent = "Horários de expediente — " + profissional.nome;
+
+        const explicacao = document.createElement("p");
+        explicacao.className = "resumo-expediente";
+        explicacao.textContent =
+            "Configure os dias e horários em que esta profissional atende. " +
+            "O intervalo é opcional.";
+
+        area.append(titulo, explicacao);
+
+        diasSemana.forEach((dia, indice) => {
+            const registro = horarios.find(h => h.dia_semana === indice);
+
+            const linha = document.createElement("div");
+            linha.className = "expediente-dia";
+
+            const nomeDia = document.createElement("div");
+            nomeDia.className = "dia-nome";
+            nomeDia.textContent = dia;
+
+            const campoInicio = criarCampoHora(
+                "Início",
+                registro?.hora_inicio
+            );
+
+            const campoFim = criarCampoHora(
+                "Término",
+                registro?.hora_fim
+            );
+
+            const campoIntervaloInicio = criarCampoHora(
+                "Início intervalo",
+                registro?.intervalo_inicio
+            );
+
+            const campoIntervaloFim = criarCampoHora(
+                "Fim intervalo",
+                registro?.intervalo_fim
+            );
+
+            const controle = document.createElement("label");
+            controle.className = "controle-expediente";
+
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.checked = registro ? registro.ativo === true : false;
+
+            const textoAtivo = document.createElement("span");
+            textoAtivo.textContent = "Expediente ativo";
+
+            controle.append(checkbox, textoAtivo);
+
+            const botao = document.createElement("button");
+            botao.className = "botao-secundario";
+            botao.type = "button";
+            botao.textContent = "Salvar dia";
+
+            botao.addEventListener("click", async () => {
+                await salvarHorario({
+                    profissional,
+                    diaSemana: indice,
+                    registro,
+                    ativo: checkbox.checked,
+                    inicio: campoInicio.input.value,
+                    fim: campoFim.input.value,
+                    intervaloInicio: campoIntervaloInicio.input.value,
+                    intervaloFim: campoIntervaloFim.input.value,
+                    botao,
+                    area
+                });
+            });
+
+            linha.append(
+                nomeDia,
+                campoInicio.container,
+                campoFim.container,
+                campoIntervaloInicio.container,
+                campoIntervaloFim.container,
+                controle,
+                botao
+            );
+
+            area.appendChild(linha);
+        });
+
+        const aviso = document.createElement("div");
+        aviso.className = "mensagem-expediente";
+        aviso.style.color = "#806d5d";
+        aviso.textContent =
+            "Salve cada dia separadamente. Dias sem expediente devem permanecer desmarcados.";
+
+        area.appendChild(aviso);
+
+    } catch (error) {
+        area.textContent = "Erro ao carregar expediente: " + error.message;
+    }
+}
+
+function criarCampoHora(rotulo, valor) {
+    const container = document.createElement("div");
+    container.className = "campo";
+
+    const label = document.createElement("label");
+    label.textContent = rotulo;
+
+    const input = document.createElement("input");
+    input.type = "time";
+
+    if (valor) {
+        input.value = String(valor).slice(0, 5);
+    }
+
+    container.append(label, input);
+
+    return { container, input };
+}
+
+async function salvarHorario(dados) {
+    const {
+        profissional,
+        diaSemana,
+        registro,
+        ativo,
+        inicio,
+        fim,
+        intervaloInicio,
+        intervaloFim,
+        botao,
+        area
+    } = dados;
+
+    try {
+        botao.disabled = true;
+        botao.textContent = "Salvando...";
+
+        if (!ativo) {
+            if (registro) {
+                const { error } = await bb
+                    .from("horarios_trabalho")
+                    .update({ ativo: false })
+                    .eq("id", registro.id)
+                    .eq("empresa_id", empresaId)
+                    .eq("profissional_id", profissional.id);
+
+                if (error) throw error;
+            }
+
+            mostrarMensagem(
+                "Expediente desativado para " +
+                diasSemana[diaSemana] + ".",
+                true
+            );
+
+            await montarExpediente(profissional, area);
+            return;
+        }
+
+        if (!inicio || !fim) {
+            throw new Error(
+                "Informe o horário de início e término do expediente."
+            );
+        }
+
+        if (fim <= inicio) {
+            throw new Error(
+                "O horário de término deve ser posterior ao início."
+            );
+        }
+
+        if (
+            (intervaloInicio && !intervaloFim) ||
+            (!intervaloInicio && intervaloFim)
+        ) {
+            throw new Error(
+                "Informe o início e o fim do intervalo."
+            );
+        }
+
+        if (intervaloInicio && intervaloFim) {
+            if (
+                intervaloInicio <= inicio ||
+                intervaloFim >= fim ||
+                intervaloFim <= intervaloInicio
+            ) {
+                throw new Error(
+                    "O intervalo deve estar dentro do expediente e ter horários válidos."
+                );
+            }
+        }
+
+        const dadosHorario = {
+            empresa_id: empresaId,
+            profissional_id: profissional.id,
+            dia_semana: diaSemana,
+            hora_inicio: inicio,
+            hora_fim: fim,
+            intervalo_inicio: intervaloInicio || null,
+            intervalo_fim: intervaloFim || null,
+            ativo: true
+        };
+
+        const { error } = await bb
+            .from("horarios_trabalho")
+            .upsert(dadosHorario, {
+                onConflict: "profissional_id,dia_semana"
+            });
+
+        if (error) throw error;
+
+        mostrarMensagem(
+            "Expediente de " + diasSemana[diaSemana] +
+            " salvo com sucesso!",
+            true
+        );
+
+        await montarExpediente(profissional, area);
+
+    } catch (error) {
+        mostrarMensagem("Erro ao salvar expediente: " + error.message);
+
+        botao.disabled = false;
+        botao.textContent = "Salvar dia";
+    }
 }
 
 document.getElementById("pesquisaNome")
@@ -425,6 +803,7 @@ form.addEventListener("submit", async function(event) {
         if (resultado.error) throw resultado.error;
 
         mostrarMensagem("Profissional salvo com sucesso!", true);
+
         limparFormulario();
         await carregarProfissionais();
 
@@ -437,6 +816,7 @@ form.addEventListener("submit", async function(event) {
             : "Salvar profissional";
     }
 });
+
 async function excluirProfissional(profissional) {
     const confirmar = confirm(
         "Deseja realmente excluir o profissional " +
@@ -469,6 +849,7 @@ async function excluirProfissional(profissional) {
         );
     }
 }
+
 function editarProfissional(profissional) {
     profissionalEditando = profissional.id;
 
