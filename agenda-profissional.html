@@ -1,0 +1,642 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minha Agenda | BeautyBook</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    background: #f5eee7;
+    color: #493a31;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    max-width: 950px;
+    margin: 0 auto;
+}
+
+.topo {
+    background: #98704f;
+    color: white;
+    padding: 22px;
+    border-radius: 14px;
+    margin-bottom: 20px;
+}
+
+.topo h1 {
+    margin: 0 0 8px;
+    font-size: 25px;
+}
+
+.topo p {
+    margin: 0;
+}
+
+.filtros, .agendamento {
+    background: white;
+    padding: 18px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px #0000000d;
+}
+
+.filtros {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: end;
+}
+
+.campo {
+    flex: 1;
+    min-width: 150px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+
+input {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #d8c9bc;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+button {
+    border: none;
+    border-radius: 8px;
+    padding: 12px 17px;
+    background: #98704f;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: .9;
+}
+
+button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.botao-secundario {
+    background: #eadfd5;
+    color: #604735;
+}
+
+.agendamento h3 {
+    margin: 0 0 12px;
+    color: #765338;
+}
+
+.agendamento p {
+    margin: 7px 0;
+    line-height: 1.4;
+}
+
+.acoes {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.status {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background: #eee8e1;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.status.confirmado {
+    background: #e1f2e4;
+    color: #28643b;
+}
+
+.status.pendente {
+    background: #fff0cf;
+    color: #805d13;
+}
+
+.status.cancelado {
+    background: #f8e1e1;
+    color: #9a3838;
+}
+
+.mensagem {
+    padding: 14px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    display: none;
+    background: #fff0cf;
+    color: #805d13;
+}
+
+.vazio {
+    text-align: center;
+    padding: 30px 15px;
+    background: white;
+    border-radius: 12px;
+}
+
+#lista {
+    margin-top: 18px;
+}
+
+@media(max-width: 600px) {
+    body {
+        padding: 12px;
+    }
+
+    .filtros {
+        display: block;
+    }
+
+    .campo {
+        margin-bottom: 12px;
+    }
+
+    .filtros button {
+        width: 100%;
+    }
+
+    .topo h1 {
+        font-size: 22px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <header class="topo">
+        <h1>Minha Agenda</h1>
+        <p id="nomeProfissional">BeautyBook - Área do profissional</p>
+    </header>
+
+    <div id="mensagem" class="mensagem"></div>
+
+    <section class="filtros">
+
+        <div class="campo">
+            <label for="dataInicio">Data inicial</label>
+            <input type="date" id="dataInicio">
+        </div>
+
+        <div class="campo">
+            <label for="dataFim">Data final</label>
+            <input type="date" id="dataFim">
+        </div>
+
+        <button id="btnBuscar" type="button">
+            Consultar agenda
+        </button>
+
+    </section>
+
+    <div id="resumo"></div>
+
+    <section id="lista">
+        <div class="vazio">Carregando sua agenda...</div>
+    </section>
+
+    <button id="btnSair" class="botao-secundario" type="button">
+        Sair
+    </button>
+
+</div>
+
+<script>
+const bb = window.beautybookSupabase;
+
+const mensagem = document.getElementById("mensagem");
+const lista = document.getElementById("lista");
+const resumo = document.getElementById("resumo");
+
+let usuarioAtual = null;
+
+function dataLocalISO(data = new Date()) {
+    const ano = data.getFullYear();
+    const mes = String(data.getMonth() + 1).padStart(2, "0");
+    const dia = String(data.getDate()).padStart(2, "0");
+
+    return `${ano}-${mes}-${dia}`;
+}
+
+function adicionarDias(data, quantidade) {
+    const nova = new Date(data + "T12:00:00");
+    nova.setDate(nova.getDate() + quantidade);
+    return dataLocalISO(nova);
+}
+
+function mostrarMensagem(texto, sucesso = false) {
+    mensagem.textContent = texto;
+    mensagem.style.display = "block";
+
+    mensagem.style.background = sucesso ? "#e1f2e4" : "#fff0cf";
+    mensagem.style.color = sucesso ? "#28643b" : "#805d13";
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function esconderMensagem() {
+    mensagem.style.display = "none";
+}
+
+function formatarData(data) {
+    if (!data) return "";
+
+    const partes = data.split("-");
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
+
+function formatarHora(hora) {
+    return hora ? hora.substring(0, 5) : "";
+}
+
+function formatarValor(valor) {
+    return Number(valor || 0).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+    });
+}
+
+function nomeStatus(status) {
+    const nomes = {
+        pendente: "Pendente",
+        confirmado: "Confirmado",
+        cancelado: "Cancelado",
+        concluido: "Concluído",
+        concluído: "Concluído"
+    };
+
+    return nomes[status] || status || "Não informado";
+}
+
+function validarPeriodo(inicio, fim) {
+    if (!inicio || !fim) {
+        mostrarMensagem("Informe as duas datas.");
+        return false;
+    }
+
+    if (fim < inicio) {
+        mostrarMensagem("A data final não pode ser anterior à inicial.");
+        return false;
+    }
+
+    const diferenca =
+        (Date.parse(fim + "T12:00:00") -
+         Date.parse(inicio + "T12:00:00")) / 86400000;
+
+    if (diferenca > 31) {
+        mostrarMensagem("Consulte períodos de no máximo 32 dias.");
+        return false;
+    }
+
+    return true;
+}
+
+async function verificarAcesso() {
+    if (!bb) {
+        throw new Error("A conexão com o BeautyBook não foi inicializada. Verifique o supabase-config.js.");
+    }
+
+    const { data, error } = await bb.auth.getSession();
+
+    if (error) throw error;
+
+    const session = data.session;
+
+    if (!session) {
+        window.location.replace("login-profissional.html");
+        return false;
+    }
+
+    const { data: usuarioData, error: erroUsuario } =
+        await bb.auth.getUser();
+
+    if (erroUsuario) throw erroUsuario;
+
+    const usuario = usuarioData.user;
+
+    if (!usuario) {
+        window.location.replace("login-profissional.html");
+        return false;
+    }
+
+    const meta = usuario.app_metadata || {};
+
+    if (
+        meta.tipo_acesso !== "profissional" ||
+        !meta.profissional_id ||
+        !meta.empresa_id
+    ) {
+        await bb.auth.signOut();
+        window.location.replace("login-profissional.html");
+        return false;
+    }
+
+    if (
+        meta.deve_trocar_senha === true ||
+        meta.deve_trocar_senha === "true"
+    ) {
+        alert("Você precisa trocar sua senha antes de acessar a agenda.");
+        await bb.auth.signOut();
+        window.location.replace("login-profissional.html");
+        return false;
+    }
+
+    usuarioAtual = usuario;
+
+    document.getElementById("nomeProfissional").textContent =
+        "Bem-vinda à sua área de trabalho.";
+
+    return true;
+}
+
+async function carregarAgenda() {
+    esconderMensagem();
+
+    const inicio = document.getElementById("dataInicio").value;
+    const fim = document.getElementById("dataFim").value;
+
+    if (!validarPeriodo(inicio, fim)) return;
+
+    const botao = document.getElementById("btnBuscar");
+
+    botao.disabled = true;
+    botao.textContent = "Consultando...";
+
+    lista.innerHTML = '<div class="vazio">Buscando seus agendamentos...</div>';
+
+    try {
+        const { data, error } = await bb.rpc(
+            "minha_agenda_profissional",
+            {
+                p_data_inicio: inicio,
+                p_data_fim: fim
+            }
+        );
+
+        if (error) throw error;
+
+        const agendamentos = data || [];
+
+        resumo.innerHTML = "";
+
+        const total = document.createElement("p");
+        total.textContent =
+            `Você possui ${agendamentos.length} agendamento(s) neste período.`;
+
+        resumo.appendChild(total);
+
+        lista.innerHTML = "";
+
+        if (agendamentos.length === 0) {
+            lista.innerHTML =
+                '<div class="vazio">Nenhum agendamento encontrado neste período.</div>';
+            return;
+        }
+
+        agendamentos.forEach(agendamento => {
+            const card = document.createElement("article");
+            card.className = "agendamento";
+
+            const titulo = document.createElement("h3");
+            titulo.textContent =
+                formatarData(agendamento.data) +
+                " - " +
+                formatarHora(agendamento.hora_inicio) +
+                " às " +
+                formatarHora(agendamento.hora_fim);
+
+            const cliente = document.createElement("p");
+            cliente.textContent =
+                "Cliente: " + (agendamento.cliente_nome || "Não informado");
+
+            const telefone = document.createElement("p");
+            telefone.textContent =
+                "Telefone: " + (agendamento.cliente_telefone || "Não informado");
+
+            const servico = document.createElement("p");
+            servico.textContent =
+                "Serviço: " + (agendamento.servico_nome || "Não informado");
+
+            const valor = document.createElement("p");
+            valor.textContent =
+                "Valor: " + formatarValor(agendamento.valor);
+
+            const duracao = document.createElement("p");
+            duracao.textContent =
+                "Duração: " + (agendamento.duracao_minutos || 0) + " minutos";
+
+            const status = document.createElement("span");
+            status.className =
+                "status " + (agendamento.status || "");
+
+            status.textContent = nomeStatus(agendamento.status);
+
+            card.append(
+                titulo,
+                cliente,
+                telefone,
+                servico,
+                valor,
+                duracao,
+                status
+            );
+
+            if (agendamento.observacoes) {
+                const observacoes = document.createElement("p");
+                observacoes.textContent =
+                    "Observações: " + agendamento.observacoes;
+
+                card.appendChild(observacoes);
+            }
+
+            if (
+                agendamento.status === "pendente" ||
+                agendamento.status === "confirmado"
+            ) {
+                const acoes = document.createElement("div");
+                acoes.className = "acoes";
+
+                const reagendar = document.createElement("button");
+                reagendar.className = "botao-secundario";
+                reagendar.textContent = "Reagendar";
+
+                reagendar.addEventListener("click", () => {
+                    reagendarAtendimento(agendamento, reagendar);
+                });
+
+                acoes.appendChild(reagendar);
+                card.appendChild(acoes);
+            }
+
+            lista.appendChild(card);
+        });
+
+    } catch (error) {
+        lista.innerHTML =
+            '<div class="vazio">Não foi possível carregar sua agenda.</div>';
+
+        mostrarMensagem(
+            "Erro ao consultar agenda: " + error.message
+        );
+
+    } finally {
+        botao.disabled = false;
+        botao.textContent = "Consultar agenda";
+    }
+}
+
+async function reagendarAtendimento(agendamento, botao) {
+    const novaData = prompt(
+        "Informe a nova data no formato AAAA-MM-DD:",
+        agendamento.data
+    );
+
+    if (novaData === null) return;
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(novaData)) {
+        mostrarMensagem("Data inválida. Use o formato AAAA-MM-DD.");
+        return;
+    }
+
+    const novaHora = prompt(
+        "Informe o novo horário no formato HH:MM:",
+        formatarHora(agendamento.hora_inicio)
+    );
+
+    if (novaHora === null) return;
+
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(novaHora)) {
+        mostrarMensagem("Horário inválido. Use o formato HH:MM.");
+        return;
+    }
+
+    const motivo = prompt(
+        "Informe o motivo do reagendamento (opcional):",
+        ""
+    );
+
+    if (motivo === null) return;
+
+    const confirmar = confirm(
+        "Confirma o reagendamento para " +
+        formatarData(novaData) +
+        " às " + novaHora + "?"
+    );
+
+    if (!confirmar) return;
+
+    botao.disabled = true;
+    botao.textContent = "Reagendando...";
+
+    try {
+        const { data, error } = await bb.rpc(
+            "reagendar_meu_atendimento",
+            {
+                p_agendamento: agendamento.agendamento_id,
+                p_data_nova: novaData,
+                p_hora_inicio_nova: novaHora,
+                p_motivo: motivo.trim() || null
+            }
+        );
+
+        if (error) throw error;
+
+        if (!data || data.sucesso !== true) {
+            throw new Error(
+                data?.mensagem || "Não foi possível reagendar o atendimento."
+            );
+        }
+
+        mostrarMensagem(
+            data.mensagem || "Agendamento reagendado com sucesso!",
+            true
+        );
+
+        await carregarAgenda();
+
+    } catch (error) {
+        mostrarMensagem(
+            "Erro ao reagendar: " + error.message
+        );
+
+        botao.disabled = false;
+        botao.textContent = "Reagendar";
+    }
+}
+
+document.getElementById("btnBuscar").addEventListener(
+    "click",
+    carregarAgenda
+);
+
+document.getElementById("btnSair").addEventListener(
+    "click",
+    async () => {
+        const confirmar = confirm("Deseja sair da sua conta?");
+
+        if (!confirmar) return;
+
+        const { error } = await bb.auth.signOut();
+
+        if (error) {
+            mostrarMensagem("Não foi possível sair: " + error.message);
+            return;
+        }
+
+        window.location.replace("login-profissional.html");
+    }
+);
+
+async function iniciarPagina() {
+    try {
+        const acessoValido = await verificarAcesso();
+
+        if (!acessoValido) return;
+
+        const hoje = dataLocalISO();
+
+        document.getElementById("dataInicio").value = hoje;
+        document.getElementById("dataFim").value =
+            adicionarDias(hoje, 6);
+
+        await carregarAgenda();
+
+    } catch (error) {
+        mostrarMensagem(
+            "Não foi possível iniciar sua agenda: " + error.message
+        );
+    }
+}
+
+iniciarPagina();
+</script>
+
+</body>
+</html>
