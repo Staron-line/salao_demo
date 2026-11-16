@@ -1,0 +1,733 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agendamento | BeautyBook</title>
+
+<style>
+*{box-sizing:border-box}
+
+:root{
+    --fundo:#f5eee7;
+    --texto:#493a31;
+    --principal:#98704f;
+    --claro:#eadfd5;
+    --branco:#fff;
+}
+
+body{
+    margin:0;
+    background:var(--fundo);
+    color:var(--texto);
+    font-family:Arial,sans-serif;
+}
+
+.container{
+    width:min(100% - 30px,850px);
+    margin:30px auto;
+}
+
+.topo{
+    text-align:center;
+    padding:25px 15px;
+}
+
+.logo{
+    width:85px;
+    height:85px;
+    object-fit:cover;
+    border-radius:50%;
+    margin-bottom:12px;
+    display:none;
+}
+
+.topo h1{
+    margin:0;
+    font-size:30px;
+}
+
+.topo p{
+    color:#887b70;
+    margin-top:8px;
+}
+
+.card{
+    background:white;
+    border-radius:16px;
+    padding:22px;
+    margin-bottom:18px;
+    box-shadow:0 5px 20px #0000000a;
+}
+
+.card h2{
+    font-size:19px;
+    margin:0 0 18px;
+    color:#75543c;
+}
+
+.campo{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+    margin-bottom:16px;
+}
+
+label{
+    font-size:13px;
+    font-weight:bold;
+}
+
+input,select{
+    width:100%;
+    padding:13px;
+    border:1px solid #ddd0c4;
+    border-radius:9px;
+    background:#fff;
+    color:var(--texto);
+    font-size:15px;
+}
+
+button{
+    border:0;
+    border-radius:9px;
+    padding:14px 20px;
+    background:var(--principal);
+    color:white;
+    font-size:15px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+}
+
+.servicos{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+    gap:13px;
+}
+
+.servico{
+    border:2px solid var(--claro);
+    border-radius:12px;
+    overflow:hidden;
+    cursor:pointer;
+    transition:.2s;
+    background:white;
+}
+
+.servico.selecionado{
+    border-color:var(--principal);
+    box-shadow:0 0 0 2px #98704f22;
+}
+
+.servico img{
+    width:100%;
+    height:155px;
+    object-fit:cover;
+    background:#f5eee7;
+    display:block;
+}
+
+.servico-info{
+    padding:13px;
+}
+
+.servico-info strong{
+    display:block;
+    margin-bottom:6px;
+}
+
+.servico-info p{
+    margin:5px 0;
+    font-size:13px;
+    color:#887b70;
+    line-height:1.5;
+}
+
+.preco{
+    color:var(--principal)!important;
+    font-size:17px!important;
+    font-weight:bold;
+}
+
+.horarios{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(85px,1fr));
+    gap:9px;
+}
+
+.horario{
+    padding:12px 5px;
+    border:1px solid var(--claro);
+    border-radius:8px;
+    background:white;
+    color:var(--texto);
+}
+
+.horario.selecionado{
+    background:var(--principal);
+    color:white;
+    border-color:var(--principal);
+}
+
+.mensagem{
+    padding:13px;
+    border-radius:9px;
+    background:#f8f3ee;
+    color:#75543c;
+    font-size:14px;
+    margin-top:12px;
+    line-height:1.5;
+}
+
+.sucesso{
+    background:#eaf7ed;
+    color:#236b38;
+}
+
+.erro{
+    background:#fff0ed;
+    color:#a33b2b;
+}
+
+.btn-confirmar{
+    width:100%;
+    margin-top:8px;
+}
+
+#whatsappFlutuante{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    z-index:100;
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    background:#25D366;
+    color:white;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    font-size:29px;
+    text-decoration:none;
+    box-shadow:0 4px 15px #0003;
+}
+
+#whatsappFlutuante:hover{
+    transform:scale(1.06);
+}
+
+#resultado{
+    display:none;
+}
+
+#resultado a{
+    display:inline-block;
+    margin-top:12px;
+    padding:12px 18px;
+    background:#25D366;
+    color:white;
+    border-radius:9px;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.rodape{
+    text-align:center;
+    color:#887b70;
+    font-size:12px;
+    padding:20px;
+}
+
+@media(max-width:600px){
+    .container{margin:12px auto}
+    .card{padding:17px}
+    .topo h1{font-size:25px}
+    #whatsappFlutuante{
+        right:15px;
+        bottom:15px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <header class="topo">
+        <img id="logoSalao" class="logo" alt="Logo do salão">
+        <h1 id="nomeSalao">BeautyBook</h1>
+        <p>Agende seu horário de forma rápida e fácil.</p>
+    </header>
+
+    <div id="carregando" class="card">
+        Carregando informações do salão...
+    </div>
+
+    <div id="conteudo" style="display:none">
+
+        <section class="card">
+            <h2>1. Escolha seu serviço</h2>
+            <div id="listaServicos" class="servicos"></div>
+        </section>
+
+        <section class="card">
+            <h2>2. Escolha o profissional</h2>
+            <div class="campo">
+                <label for="profissional">Profissional</label>
+                <select id="profissional">
+                    <option value="">Selecione um profissional</option>
+                </select>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>3. Escolha a data</h2>
+            <div class="campo">
+                <label for="data">Data desejada</label>
+                <input type="date" id="data">
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>4. Escolha o horário</h2>
+            <div id="listaHorarios" class="horarios">
+                <p>Selecione serviço, profissional e data.</p>
+            </div>
+            <div id="mensagemHorario"></div>
+        </section>
+
+        <section class="card">
+            <h2>5. Seus dados</h2>
+
+            <div class="campo">
+                <label for="nome">Nome completo *</label>
+                <input id="nome" type="text" maxlength="150"
+                    placeholder="Digite seu nome">
+            </div>
+
+            <div class="campo">
+                <label for="telefone">WhatsApp *</label>
+                <input id="telefone" type="tel" maxlength="30"
+                    placeholder="(21) 99999-9999">
+            </div>
+
+            <div class="campo">
+                <label for="email">E-mail (opcional)</label>
+                <input id="email" type="email" maxlength="254"
+                    placeholder="seuemail@email.com">
+            </div>
+
+            <button id="btnConfirmar" class="btn-confirmar">
+                Confirmar agendamento
+            </button>
+
+            <div id="mensagemConfirmacao"></div>
+        </section>
+
+        <section class="card" id="resultado">
+            <h2>Agendamento realizado!</h2>
+            <div id="detalhesResultado"></div>
+            <p>Seu agendamento foi registrado como pendente.</p>
+            <p>Entre em contato com o salão pelo WhatsApp, se precisar de ajuda.</p>
+            <a id="whatsappResultado" target="_blank"
+                rel="noopener noreferrer">Falar com o salão pelo WhatsApp</a>
+        </section>
+
+    </div>
+
+    <footer class="rodape">
+        Agendamento online • BeautyBook
+    </footer>
+
+</div>
+
+<a id="whatsappFlutuante"
+   href="#"
+   target="_blank"
+   rel="noopener noreferrer"
+   aria-label="Atendimento pelo WhatsApp"
+   title="Atendimento pelo WhatsApp">✆</a>
+
+<script>
+const API =
+"https://utewurlabmgnmxpoosax.supabase.co/functions/v1/agendamento-publico";
+
+const parametros = new URLSearchParams(window.location.search);
+const slug = parametros.get("salon");
+
+let dadosSalao = null;
+let servicoSelecionado = null;
+let profissionalSelecionado = null;
+let horarioSelecionado = null;
+let whatsappSalao = "";
+
+const carregando = document.getElementById("carregando");
+const conteudo = document.getElementById("conteudo");
+const listaServicos = document.getElementById("listaServicos");
+const profissionalSelect = document.getElementById("profissional");
+const dataInput = document.getElementById("data");
+const listaHorarios = document.getElementById("listaHorarios");
+const mensagemHorario = document.getElementById("mensagemHorario");
+const mensagemConfirmacao = document.getElementById("mensagemConfirmacao");
+const btnConfirmar = document.getElementById("btnConfirmar");
+
+function mostrarMensagem(elemento, texto, tipo=""){
+    elemento.className = "mensagem " + tipo;
+    elemento.textContent = texto;
+}
+
+function moeda(valor){
+    return Number(valor).toLocaleString("pt-BR",{
+        style:"currency",
+        currency:"BRL"
+    });
+}
+
+function dataBrasil(){
+    const partes = new Intl.DateTimeFormat("en-CA",{
+        timeZone:"America/Sao_Paulo",
+        year:"numeric",
+        month:"2-digit",
+        day:"2-digit"
+    }).format(new Date());
+
+    return partes;
+}
+
+function normalizarWhatsApp(numero){
+    let digitos = String(numero || "").replace(/\D/g,"");
+
+    if(digitos.startsWith("00")){
+        digitos = digitos.slice(2);
+    }
+
+    if(!digitos.startsWith("55")){
+        digitos = "55" + digitos;
+    }
+
+    return digitos;
+}
+
+function atualizarWhatsApp(){
+    if(!dadosSalao?.empresa?.telefone) return;
+
+    const numero = normalizarWhatsApp(dadosSalao.empresa.telefone);
+
+    if(numero.length < 12 || numero.length > 13) return;
+
+    whatsappSalao = numero;
+
+    const link = document.getElementById("whatsappFlutuante");
+
+    link.href =
+        "https://wa.me/" + numero +
+        "?text=" + encodeURIComponent(
+            "Olá! Gostaria de informações sobre os serviços e agendamentos."
+        );
+
+    link.style.display = "flex";
+}
+
+async function requisicao(url, opcoes={}){
+    const resposta = await fetch(url,opcoes);
+    const dados = await resposta.json();
+
+    if(!resposta.ok || dados.erro){
+        throw new Error(dados.erro || "Não foi possível concluir a operação.");
+    }
+
+    return dados;
+}
+
+async function carregarSalao(){
+    if(!slug){
+        throw new Error("Link de agendamento inválido. Identificação do salão não encontrada.");
+    }
+
+    const dados = await requisicao(
+        API + "?action=salon&salon=" + encodeURIComponent(slug)
+    );
+
+    dadosSalao = dados;
+
+    document.getElementById("nomeSalao").textContent =
+        dados.empresa.nome_fantasia || "Agendamento";
+
+    if(dados.empresa.logo_url){
+        const logo = document.getElementById("logoSalao");
+        logo.src = dados.empresa.logo_url;
+        logo.style.display = "inline-block";
+    }
+
+    atualizarWhatsApp();
+    renderizarServicos();
+    carregarProfissionais();
+
+    dataInput.min = dataBrasil();
+    dataInput.value = dataBrasil();
+
+    carregando.style.display = "none";
+    conteudo.style.display = "block";
+}
+
+function renderizarServicos(){
+    listaServicos.innerHTML = "";
+
+    if(!dadosSalao.servicos.length){
+        listaServicos.textContent = "Nenhum serviço disponível no momento.";
+        return;
+    }
+
+    dadosSalao.servicos.forEach(servico=>{
+        const card = document.createElement("div");
+        card.className = "servico";
+
+        const imagem = document.createElement("img");
+        imagem.alt = servico.nome;
+
+        if(servico.imagem_url){
+            imagem.src = servico.imagem_url;
+        }else{
+            imagem.style.display = "none";
+        }
+
+        const info = document.createElement("div");
+        info.className = "servico-info";
+
+        const nome = document.createElement("strong");
+        nome.textContent = servico.nome;
+
+        const descricao = document.createElement("p");
+        descricao.textContent = servico.descricao || "";
+
+        const preco = document.createElement("p");
+        preco.className = "preco";
+        preco.textContent = moeda(servico.preco);
+
+        const duracao = document.createElement("p");
+        duracao.textContent = servico.duracao_minutos + " minutos";
+
+        info.append(nome,descricao,preco,duracao);
+        card.append(imagem,info);
+
+        card.addEventListener("click",()=>{
+            servicoSelecionado = servico;
+            horarioSelecionado = null;
+
+            document.querySelectorAll(".servico").forEach(item=>{
+                item.classList.remove("selecionado");
+            });
+
+            card.classList.add("selecionado");
+
+            carregarProfissionais();
+            limparHorarios();
+        });
+
+        listaServicos.appendChild(card);
+    });
+}
+
+function carregarProfissionais(){
+    profissionalSelect.innerHTML =
+        '<option value="">Selecione um profissional</option>';
+
+    if(!servicoSelecionado) return;
+
+    const ids = dadosSalao.vinculos
+        .filter(v=>v.servico_id === servicoSelecionado.id)
+        .map(v=>v.profissional_id);
+
+    dadosSalao.profissionais
+        .filter(p=>ids.includes(p.id))
+        .forEach(profissional=>{
+            const opcao = document.createElement("option");
+            opcao.value = profissional.id;
+            opcao.textContent = profissional.nome +
+                (profissional.especialidade
+                    ? " - " + profissional.especialidade
+                    : "");
+
+            profissionalSelect.appendChild(opcao);
+        });
+}
+
+function limparHorarios(){
+    horarioSelecionado = null;
+    listaHorarios.innerHTML = "";
+    listaHorarios.textContent = "Selecione profissional e data.";
+    mensagemHorario.textContent = "";
+}
+
+async function carregarHorarios(){
+    horarioSelecionado = null;
+    listaHorarios.innerHTML = "";
+    mensagemHorario.textContent = "";
+
+    if(!servicoSelecionado || !profissionalSelecionado || !dataInput.value){
+        listaHorarios.textContent =
+            "Selecione serviço, profissional e data.";
+        return;
+    }
+
+    listaHorarios.textContent = "Consultando horários disponíveis...";
+
+    try{
+        const url = API +
+            "?action=availability" +
+            "&salon=" + encodeURIComponent(slug) +
+            "&professional=" + encodeURIComponent(profissionalSelecionado) +
+            "&service=" + encodeURIComponent(servicoSelecionado.id) +
+            "&date=" + encodeURIComponent(dataInput.value);
+
+        const dados = await requisicao(url);
+
+        listaHorarios.innerHTML = "";
+
+        if(!dados.horarios || !dados.horarios.length){
+            listaHorarios.textContent =
+                "Não há horários disponíveis nesta data. Escolha outro dia.";
+            return;
+        }
+
+        dados.horarios.forEach(item=>{
+            const botao = document.createElement("button");
+            botao.type = "button";
+            botao.className = "horario";
+            botao.textContent = item.hora_inicio.slice(0,5);
+
+            botao.addEventListener("click",()=>{
+                document.querySelectorAll(".horario").forEach(b=>{
+                    b.classList.remove("selecionado");
+                });
+
+                botao.classList.add("selecionado");
+                horarioSelecionado = item.hora_inicio;
+            });
+
+            listaHorarios.appendChild(botao);
+        });
+
+    }catch(erro){
+        listaHorarios.textContent = "";
+        mostrarMensagem(mensagemHorario,erro.message,"erro");
+    }
+}
+
+profissionalSelect.addEventListener("change",()=>{
+    profissionalSelecionado = profissionalSelect.value || null;
+    carregarHorarios();
+});
+
+dataInput.addEventListener("change",carregarHorarios);
+
+document.getElementById("btnConfirmar").addEventListener("click",async()=>{
+    mensagemConfirmacao.textContent = "";
+
+    const nome = document.getElementById("nome").value.trim();
+    const telefone = document.getElementById("telefone").value.trim();
+    const email = document.getElementById("email").value.trim();
+
+    if(!servicoSelecionado){
+        mostrarMensagem(mensagemConfirmacao,"Escolha um serviço.","erro");
+        return;
+    }
+
+    if(!profissionalSelecionado){
+        mostrarMensagem(mensagemConfirmacao,"Escolha um profissional.","erro");
+        return;
+    }
+
+    if(!dataInput.value || !horarioSelecionado){
+        mostrarMensagem(mensagemConfirmacao,"Escolha uma data e um horário disponível.","erro");
+        return;
+    }
+
+    if(!nome || !telefone){
+        mostrarMensagem(mensagemConfirmacao,"Informe seu nome e WhatsApp.","erro");
+        return;
+    }
+
+    btnConfirmar.disabled = true;
+    btnConfirmar.textContent = "Confirmando...";
+
+    try{
+        const resultado = await requisicao(API,{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                salon:slug,
+                profissional_id:profissionalSelecionado,
+                servico_id:servicoSelecionado.id,
+                data:dataInput.value,
+                hora_inicio:horarioSelecionado,
+                nome,
+                telefone,
+                email:email || null
+            })
+        });
+
+        document.getElementById("conteudo").querySelectorAll(
+            "section.card"
+        ).forEach(secao=>{
+            if(secao.id !== "resultado"){
+                secao.style.display = "none";
+            }
+        });
+
+        const profissional = dadosSalao.profissionais.find(
+            p=>p.id === profissionalSelecionado
+        );
+
+        document.getElementById("detalhesResultado").textContent =
+            "Serviço: " + servicoSelecionado.nome +
+            " | Profissional: " + (profissional?.nome || "") +
+            " | Data: " + dataInput.value.split("-").reverse().join("/") +
+            " | Horário: " + horarioSelecionado.slice(0,5) +
+            " | Protocolo: " + (resultado.agendamento_id || "");
+
+        const resultadoWhatsApp = document.getElementById("whatsappResultado");
+
+        if(whatsappSalao){
+            resultadoWhatsApp.href =
+                "https://wa.me/" + whatsappSalao +
+                "?text=" + encodeURIComponent(
+                    "Olá! Acabei de solicitar um agendamento no salão " +
+                    dadosSalao.empresa.nome_fantasia +
+                    ". Gostaria de confirmar o atendimento."
+                );
+        }else{
+            resultadoWhatsApp.style.display = "none";
+        }
+
+        document.getElementById("resultado").style.display = "block";
+        document.getElementById("resultado").scrollIntoView({
+            behavior:"smooth"
+        });
+
+    }catch(erro){
+        mostrarMensagem(mensagemConfirmacao,erro.message,"erro");
+        await carregarHorarios();
+    }finally{
+        btnConfirmar.disabled = false;
+        btnConfirmar.textContent = "Confirmar agendamento";
+    }
+});
+
+carregarSalao().catch(erro=>{
+    carregando.textContent = erro.message;
+    mostrarMensagem(carregando,erro.message,"erro");
+});
+</script>
+
+</body>
+</html>
