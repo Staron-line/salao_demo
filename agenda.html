@@ -11,6 +11,7 @@
 
 <style>
 *{box-sizing:border-box}
+
 body{
     margin:0;
     padding:25px;
@@ -18,10 +19,21 @@ body{
     color:#493a31;
     font-family:Arial,sans-serif;
 }
+
 .container{max-width:1100px;margin:auto}
-.topo{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+
+.topo{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
 h1{margin:0 0 8px;font-size:28px}
+
 a{color:#98704f;text-decoration:none;font-weight:bold}
+
 .card{
     background:white;
     padding:22px;
@@ -29,22 +41,38 @@ a{color:#98704f;text-decoration:none;font-weight:bold}
     margin-top:20px;
     box-shadow:0 5px 20px #0000000a;
 }
+
 .controles{
     display:flex;
     gap:12px;
     flex-wrap:wrap;
     align-items:end;
 }
-.campo{display:flex;flex-direction:column;gap:7px}
+
+.campo{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+}
+
 label{font-size:13px;font-weight:bold}
-input,select{
+
+input,select,textarea{
     padding:12px;
     border:1px solid #ddd0c4;
     border-radius:8px;
     background:white;
     color:#493a31;
     min-width:160px;
+    font-family:Arial,sans-serif;
 }
+
+textarea{
+    width:100%;
+    min-height:75px;
+    resize:vertical;
+}
+
 button{
     padding:12px 18px;
     border:0;
@@ -54,13 +82,26 @@ button{
     font-weight:bold;
     cursor:pointer;
 }
-button:disabled{opacity:.5}
+
+button:disabled{opacity:.5;cursor:not-allowed}
+
+.btn-reagendar{
+    margin-top:12px;
+    background:#765438;
+}
+
+.btn-secundario{
+    background:#e9ded4;
+    color:#493a31;
+}
+
 .dia-titulo{
     margin:25px 0 12px;
     font-size:17px;
     font-weight:bold;
     color:#75543c;
 }
+
 .agendamento{
     border:1px solid #eadfd5;
     border-left:5px solid #b89572;
@@ -72,22 +113,106 @@ button:disabled{opacity:.5}
     gap:15px;
     flex-wrap:wrap;
 }
-.horario{font-size:19px;font-weight:bold;color:#765438}
+
+.horario{
+    font-size:19px;
+    font-weight:bold;
+    color:#765438;
+}
+
 .detalhes{line-height:1.8;font-size:14px}
+
 .status{min-width:180px}
-.vazio{text-align:center;padding:35px;color:#887b70}
+
+.vazio{
+    text-align:center;
+    padding:35px;
+    color:#887b70;
+}
+
 #mensagem{margin-top:15px;font-size:14px}
+
+/* Janela de reagendamento */
+
+.modal-fundo{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:#0009;
+    z-index:1000;
+    padding:20px;
+    overflow-y:auto;
+    align-items:center;
+    justify-content:center;
+}
+
+.modal-fundo.aberto{display:flex}
+
+.modal{
+    background:white;
+    width:100%;
+    max-width:520px;
+    border-radius:16px;
+    padding:25px;
+    box-shadow:0 10px 40px #0003;
+}
+
+.modal h2{
+    margin:0 0 8px;
+    color:#765438;
+}
+
+.modal-descricao{
+    font-size:14px;
+    color:#887b70;
+    margin-bottom:20px;
+    line-height:1.5;
+}
+
+.modal-campos{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+.modal-campos .campo{min-width:0}
+
+.modal-campos input,
+.modal-campos select{width:100%;min-width:0}
+
+.campo-largo{grid-column:1/-1}
+
+#mensagemModal{
+    margin-top:15px;
+    font-size:14px;
+    line-height:1.5;
+    color:#765438;
+}
+
+.modal-acoes{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:22px;
+    flex-wrap:wrap;
+}
+
 @media(max-width:600px){
     body{padding:15px}
     .card{padding:16px}
     .controles{flex-direction:column;align-items:stretch}
     input,select{width:100%}
     .status{width:100%}
+    .modal{padding:20px}
+    .modal-campos{grid-template-columns:1fr}
+    .campo-largo{grid-column:auto}
+    .modal-acoes button{flex:1}
 }
 </style>
 </head>
 
 <body>
+
 <div class="container">
 
     <div class="topo">
@@ -131,17 +256,88 @@ button:disabled{opacity:.5}
 
 </div>
 
+<!-- Modal de reagendamento -->
+
+<div class="modal-fundo" id="modalReagendamento">
+
+    <div class="modal">
+
+        <h2>Reagendar atendimento</h2>
+
+        <div class="modal-descricao" id="descricaoReagendamento">
+            Escolha uma nova data, profissional e horário.
+        </div>
+
+        <div class="modal-campos">
+
+            <div class="campo">
+                <label for="novaData">Nova data</label>
+                <input type="date" id="novaData">
+            </div>
+
+            <div class="campo">
+                <label for="novoProfissional">Profissional</label>
+                <select id="novoProfissional">
+                    <option value="">Carregando...</option>
+                </select>
+            </div>
+
+            <div class="campo campo-largo">
+                <label for="novoHorario">Horário disponível</label>
+                <select id="novoHorario" disabled>
+                    <option value="">Selecione a data e o profissional</option>
+                </select>
+            </div>
+
+            <div class="campo campo-largo">
+                <label for="motivoReagendamento">Motivo (opcional)</label>
+                <textarea
+                    id="motivoReagendamento"
+                    maxlength="500"
+                    placeholder="Informe o motivo do reagendamento, se desejar."
+                ></textarea>
+            </div>
+
+        </div>
+
+        <div id="mensagemModal"></div>
+
+        <div class="modal-acoes">
+            <button class="btn-secundario" id="btnCancelarModal">
+                Cancelar
+            </button>
+
+            <button id="btnConfirmarReagendamento" disabled>
+                Confirmar reagendamento
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
 <script>
 const bb = window.beautybookSupabase;
 
 let empresaId = null;
 let agendamentos = [];
+let agendamentoEmReagendamento = null;
+let profissionaisAtivos = [];
+let numeroConsultaHorarios = 0;
 
 const dataReferencia = document.getElementById("dataReferencia");
 const visualizacao = document.getElementById("visualizacao");
 const listaAgenda = document.getElementById("listaAgenda");
 const mensagem = document.getElementById("mensagem");
 const tituloAgenda = document.getElementById("tituloAgenda");
+
+const modalReagendamento = document.getElementById("modalReagendamento");
+const novaData = document.getElementById("novaData");
+const novoProfissional = document.getElementById("novoProfissional");
+const novoHorario = document.getElementById("novoHorario");
+const motivoReagendamento = document.getElementById("motivoReagendamento");
+const mensagemModal = document.getElementById("mensagemModal");
+const btnConfirmarReagendamento = document.getElementById("btnConfirmarReagendamento");
 
 const statusPermitidos = [
     "pendente",
@@ -183,12 +379,26 @@ function obterPeriodo() {
     if (visualizacao.value === "semana") {
         const diaSemana = inicio.getDay();
         const diferenca = diaSemana === 0 ? -6 : 1 - diaSemana;
+
         inicio.setDate(inicio.getDate() + diferenca);
+
         fim = new Date(inicio);
         fim.setDate(fim.getDate() + 7);
+
     } else if (visualizacao.value === "mes") {
-        inicio = new Date(referencia.getFullYear(), referencia.getMonth(), 1);
-        fim = new Date(referencia.getFullYear(), referencia.getMonth() + 1, 1);
+
+        inicio = new Date(
+            referencia.getFullYear(),
+            referencia.getMonth(),
+            1
+        );
+
+        fim = new Date(
+            referencia.getFullYear(),
+            referencia.getMonth() + 1,
+            1
+        );
+
     } else {
         fim.setDate(fim.getDate() + 1);
     }
@@ -311,7 +521,9 @@ async function buscarInformacoesRelacionadas() {
 function criarTexto(tag, texto, classe) {
     const elemento = document.createElement(tag);
     elemento.textContent = texto;
+
     if (classe) elemento.className = classe;
+
     return elemento;
 }
 
@@ -320,6 +532,7 @@ function renderizarAgenda(clientes, profissionais, servicos) {
     mensagem.textContent = "";
 
     const modo = visualizacao.value;
+
     tituloAgenda.textContent =
         modo === "dia" ? "Agenda do dia" :
         modo === "semana" ? "Agenda da semana" :
@@ -327,14 +540,20 @@ function renderizarAgenda(clientes, profissionais, servicos) {
 
     if (!agendamentos.length) {
         listaAgenda.appendChild(
-            criarTexto("div", "Nenhum agendamento encontrado neste período.", "vazio")
+            criarTexto(
+                "div",
+                "Nenhum agendamento encontrado neste período.",
+                "vazio"
+            )
         );
+        mensagem.textContent = "Nenhum agendamento encontrado.";
         return;
     }
 
     let dataAtual = "";
 
     agendamentos.forEach(agendamento => {
+
         if (dataAtual !== agendamento.data) {
             dataAtual = agendamento.data;
 
@@ -361,19 +580,35 @@ function renderizarAgenda(clientes, profissionais, servicos) {
         );
 
         informacoes.appendChild(
-            criarTexto("div", "Cliente: " + (cliente?.nome || "Não encontrado"), "detalhes")
+            criarTexto(
+                "div",
+                "Cliente: " + (cliente?.nome || "Não encontrado"),
+                "detalhes"
+            )
         );
 
         informacoes.appendChild(
-            criarTexto("div", "Telefone: " + (cliente?.telefone || "Não informado"), "detalhes")
+            criarTexto(
+                "div",
+                "Telefone: " + (cliente?.telefone || "Não informado"),
+                "detalhes"
+            )
         );
 
         informacoes.appendChild(
-            criarTexto("div", "Serviço: " + (servico?.nome || "Não encontrado"), "detalhes")
+            criarTexto(
+                "div",
+                "Serviço: " + (servico?.nome || "Não encontrado"),
+                "detalhes"
+            )
         );
 
         informacoes.appendChild(
-            criarTexto("div", "Profissional: " + (profissional?.nome || "Não encontrado"), "detalhes")
+            criarTexto(
+                "div",
+                "Profissional: " + (profissional?.nome || "Não encontrado"),
+                "detalhes"
+            )
         );
 
         informacoes.appendChild(
@@ -405,20 +640,23 @@ function renderizarAgenda(clientes, profissionais, servicos) {
         seletor.value = agendamento.status;
 
         seletor.addEventListener("change", async () => {
+            const statusAnterior = agendamento.status;
+            const novoStatus = seletor.value;
+
             seletor.disabled = true;
             mensagem.textContent = "Atualizando situação...";
 
             const { error } = await bb
                 .from("agendamentos")
-                .update({ status: seletor.value })
+                .update({ status: novoStatus })
                 .eq("id", agendamento.id)
                 .eq("empresa_id", empresaId);
 
             if (error) {
-                seletor.value = agendamento.status;
+                seletor.value = statusAnterior;
                 mensagem.textContent = "Erro ao atualizar: " + error.message;
             } else {
-                agendamento.status = seletor.value;
+                agendamento.status = novoStatus;
                 mensagem.textContent = "Situação atualizada com sucesso!";
             }
 
@@ -426,18 +664,461 @@ function renderizarAgenda(clientes, profissionais, servicos) {
         });
 
         controle.appendChild(seletor);
+
+        // O botão aparece somente para pendentes e confirmados.
+        if (
+            agendamento.status === "pendente" ||
+            agendamento.status === "confirmado"
+        ) {
+            const botaoReagendar = document.createElement("button");
+
+            botaoReagendar.type = "button";
+            botaoReagendar.className = "btn-reagendar";
+            botaoReagendar.textContent = "Reagendar";
+
+            botaoReagendar.addEventListener("click", () => {
+                abrirModalReagendamento(agendamento);
+            });
+
+            controle.appendChild(botaoReagendar);
+        }
+
         card.append(informacoes, controle);
         listaAgenda.appendChild(card);
     });
 
-    mensagem.textContent = agendamentos.length + " agendamento(s) encontrado(s).";
+    mensagem.textContent =
+        agendamentos.length + " agendamento(s) encontrado(s).";
 }
 
-document.getElementById("btnAtualizar").addEventListener("click", carregarAgenda);
+/* ================================
+   REAGENDAMENTO
+================================ */
+
+async function abrirModalReagendamento(agendamento) {
+    agendamentoEmReagendamento = agendamento;
+
+    modalReagendamento.classList.add("aberto");
+
+    mensagemModal.textContent = "Carregando profissionais...";
+    motivoReagendamento.value = "";
+
+    novaData.value = agendamento.data;
+    novaData.min = dataLocal(new Date());
+
+    novoHorario.innerHTML =
+        '<option value="">Selecione a data e o profissional</option>';
+
+    novoHorario.disabled = true;
+    btnConfirmarReagendamento.disabled = true;
+
+    document.getElementById("descricaoReagendamento").textContent =
+        "Atendimento de " + agendamento.data.split("-").reverse().join("/") +
+        " às " + agendamento.hora_inicio.slice(0,5) +
+        ". Escolha o novo horário.";
+
+    await carregarProfissionaisParaReagendamento(agendamento);
+}
+
+async function carregarProfissionaisParaReagendamento(agendamento) {
+
+    const { data, error } = await bb
+        .from("profissionais")
+        .select("id,nome")
+        .eq("empresa_id", empresaId)
+        .eq("ativo", true)
+        .order("nome");
+
+    if (error) {
+        mensagemModal.textContent =
+            "Erro ao carregar profissionais: " + error.message;
+        return;
+    }
+
+    const profissionais = data || [];
+
+    // Consulta os vínculos entre profissionais e serviços.
+    const { data: vinculos, error: erroVinculos } = await bb
+        .from("profissionais_servicos")
+        .select("profissional_id")
+        .eq("empresa_id", empresaId)
+        .eq("servico_id", agendamento.servico_id);
+
+    if (erroVinculos) {
+        mensagemModal.textContent =
+            "Erro ao consultar serviços dos profissionais: " +
+            erroVinculos.message;
+        return;
+    }
+
+    const idsPermitidos = new Set(
+        (vinculos || []).map(v => v.profissional_id)
+    );
+
+    profissionaisAtivos = profissionais.filter(p =>
+        idsPermitidos.has(p.id)
+    );
+
+    novoProfissional.innerHTML = "";
+
+    if (!profissionaisAtivos.length) {
+        novoProfissional.innerHTML =
+            '<option value="">Nenhum profissional disponível</option>';
+
+        mensagemModal.textContent =
+            "Não há profissionais ativos vinculados a este serviço.";
+        return;
+    }
+
+    profissionaisAtivos.forEach(profissional => {
+        const opcao = document.createElement("option");
+
+        opcao.value = profissional.id;
+        opcao.textContent = profissional.nome;
+
+        novoProfissional.appendChild(opcao);
+    });
+
+    const profissionalAtualDisponivel = profissionaisAtivos.some(
+        p => p.id === agendamento.profissional_id
+    );
+
+    if (profissionalAtualDisponivel) {
+        novoProfissional.value = agendamento.profissional_id;
+    }
+
+    mensagemModal.textContent =
+        "Selecione a data e o profissional para consultar os horários.";
+
+    await carregarHorariosDisponiveis();
+}
+
+function minutosDoHorario(horario) {
+    const partes = horario.slice(0, 5).split(":").map(Number);
+    return partes[0] * 60 + partes[1];
+}
+
+function horarioTexto(minutos) {
+    const horas = Math.floor(minutos / 60);
+    const mins = minutos % 60;
+
+    return (
+        String(horas).padStart(2, "0") +
+        ":" +
+        String(mins).padStart(2, "0")
+    );
+}
+
+async function carregarHorariosDisponiveis() {
+
+    const consultaAtual = ++numeroConsultaHorarios;
+
+    novoHorario.disabled = true;
+    btnConfirmarReagendamento.disabled = true;
+
+    novoHorario.innerHTML =
+        '<option value="">Consultando horários...</option>';
+
+    mensagemModal.textContent = "Verificando expediente e disponibilidade...";
+
+    const agendamento = agendamentoEmReagendamento;
+
+    if (!agendamento || !novaData.value || !novoProfissional.value) {
+        novoHorario.innerHTML =
+            '<option value="">Selecione a data e o profissional</option>';
+
+        mensagemModal.textContent = "";
+        return;
+    }
+
+    const dataSelecionada = novaData.value;
+    const profissionalId = novoProfissional.value;
+
+    const partesData = dataSelecionada.split("-").map(Number);
+
+    const dataObjeto = new Date(
+        partesData[0],
+        partesData[1] - 1,
+        partesData[2]
+    );
+
+    const diaSemana = dataObjeto.getDay();
+
+    const { data: expediente, error: erroExpediente } = await bb
+        .from("horarios_trabalho")
+        .select("*")
+        .eq("empresa_id", empresaId)
+        .eq("profissional_id", profissionalId)
+        .eq("dia_semana", diaSemana)
+        .eq("ativo", true)
+        .maybeSingle();
+
+    if (consultaAtual !== numeroConsultaHorarios) return;
+
+    if (erroExpediente) {
+        mensagemModal.textContent =
+            "Erro ao consultar expediente: " + erroExpediente.message;
+        return;
+    }
+
+    if (!expediente) {
+        novoHorario.innerHTML =
+            '<option value="">Sem expediente nesta data</option>';
+
+        mensagemModal.textContent =
+            "Este profissional não possui expediente neste dia.";
+        return;
+    }
+
+    const { data: bloqueios, error: erroBloqueios } = await bb
+        .from("bloqueios_agenda")
+        .select("hora_inicio,hora_fim")
+        .eq("empresa_id", empresaId)
+        .eq("profissional_id", profissionalId)
+        .eq("data", dataSelecionada);
+
+    if (consultaAtual !== numeroConsultaHorarios) return;
+
+    if (erroBloqueios) {
+        mensagemModal.textContent =
+            "Erro ao consultar bloqueios: " + erroBloqueios.message;
+        return;
+    }
+
+    const { data: ocupados, error: erroOcupados } = await bb
+        .from("agendamentos")
+        .select("id,hora_inicio,hora_fim,status")
+        .eq("empresa_id", empresaId)
+        .eq("profissional_id", profissionalId)
+        .eq("data", dataSelecionada)
+        .neq("status", "cancelado");
+
+    if (consultaAtual !== numeroConsultaHorarios) return;
+
+    if (erroOcupados) {
+        mensagemModal.textContent =
+            "Erro ao consultar atendimentos: " + erroOcupados.message;
+        return;
+    }
+
+    const duracao = Number(agendamento.duracao_minutos);
+
+    if (!duracao || duracao <= 0) {
+        mensagemModal.textContent =
+            "A duração do serviço não está válida.";
+        return;
+    }
+
+    const inicioExpediente = minutosDoHorario(expediente.hora_inicio);
+    const fimExpediente = minutosDoHorario(expediente.hora_fim);
+
+    const intervaloInicio = expediente.intervalo_inicio
+        ? minutosDoHorario(expediente.intervalo_inicio)
+        : null;
+
+    const intervaloFim = expediente.intervalo_fim
+        ? minutosDoHorario(expediente.intervalo_fim)
+        : null;
+
+    const agora = new Date();
+    const hoje = dataLocal(agora);
+    const minutosAgora = agora.getHours() * 60 + agora.getMinutes();
+
+    const horariosLivres = [];
+
+    // Gera horários de 15 em 15 minutos, ancorados no início do expediente.
+    for (
+        let inicio = inicioExpediente;
+        inicio + duracao <= fimExpediente;
+        inicio += 15
+    ) {
+        const fim = inicio + duracao;
+
+        // Não permite horários anteriores ao momento atual.
+        if (
+            dataSelecionada === hoje &&
+            inicio <= minutosAgora
+        ) {
+            continue;
+        }
+
+        // Não permite cruzar a meia-noite.
+        if (fim > 1439) continue;
+
+        // Verifica intervalo do profissional.
+        if (
+            intervaloInicio !== null &&
+            intervaloFim !== null &&
+            inicio < intervaloFim &&
+            fim > intervaloInicio
+        ) {
+            continue;
+        }
+
+        // Verifica bloqueios da agenda.
+        const possuiBloqueio = (bloqueios || []).some(b => {
+
+            // Bloqueio sem horário significa dia inteiro.
+            if (!b.hora_inicio || !b.hora_fim) {
+                return true;
+            }
+
+            const bloqueioInicio = minutosDoHorario(b.hora_inicio);
+            const bloqueioFim = minutosDoHorario(b.hora_fim);
+
+            return inicio < bloqueioFim && fim > bloqueioInicio;
+        });
+
+        if (possuiBloqueio) continue;
+
+        // Verifica outros atendimentos, desconsiderando o próprio.
+        const possuiConflito = (ocupados || []).some(a => {
+
+            if (a.id === agendamento.id) {
+                return false;
+            }
+
+            const ocupadoInicio = minutosDoHorario(a.hora_inicio);
+            const ocupadoFim = minutosDoHorario(a.hora_fim);
+
+            return inicio < ocupadoFim && fim > ocupadoInicio;
+        });
+
+        if (possuiConflito) continue;
+
+        horariosLivres.push(horarioTexto(inicio));
+    }
+
+    novoHorario.innerHTML = "";
+
+    if (!horariosLivres.length) {
+        novoHorario.innerHTML =
+            '<option value="">Nenhum horário disponível</option>';
+
+        mensagemModal.textContent =
+            "Não há horários disponíveis nesta data para este profissional.";
+
+        return;
+    }
+
+    const opcaoInicial = document.createElement("option");
+    opcaoInicial.value = "";
+    opcaoInicial.textContent = "Escolha um horário";
+    novoHorario.appendChild(opcaoInicial);
+
+    horariosLivres.forEach(horario => {
+        const opcao = document.createElement("option");
+
+        opcao.value = horario;
+        opcao.textContent = horario;
+
+        novoHorario.appendChild(opcao);
+    });
+
+    novoHorario.disabled = false;
+
+    mensagemModal.textContent =
+        horariosLivres.length + " horário(s) disponível(is).";
+}
+
+async function confirmarReagendamento() {
+
+    const agendamento = agendamentoEmReagendamento;
+
+    if (!agendamento) return;
+
+    if (
+        !novaData.value ||
+        !novoProfissional.value ||
+        !novoHorario.value
+    ) {
+        mensagemModal.textContent =
+            "Selecione a nova data, o profissional e o horário.";
+        return;
+    }
+
+    btnConfirmarReagendamento.disabled = true;
+    mensagemModal.textContent = "Salvando reagendamento...";
+
+    const parametros = {
+        p_agendamento: agendamento.id,
+        p_data_nova: novaData.value,
+        p_hora_inicio_nova: novoHorario.value + ":00",
+        p_profissional_novo: novoProfissional.value,
+        p_motivo: motivoReagendamento.value.trim() || null
+    };
+
+    const { data, error } = await bb.rpc(
+        "reagendar_atendimento",
+        parametros
+    );
+
+    if (error) {
+        mensagemModal.textContent =
+            "Não foi possível reagendar: " + error.message;
+
+        btnConfirmarReagendamento.disabled = false;
+        return;
+    }
+
+    if (!data || data.sucesso !== true) {
+        mensagemModal.textContent =
+            data?.mensagem || "Não foi possível confirmar o reagendamento.";
+
+        btnConfirmarReagendamento.disabled = false;
+        return;
+    }
+
+    fecharModalReagendamento();
+
+    mensagem.textContent = "Reagendamento realizado com sucesso!";
+
+    await carregarAgenda();
+}
+
+function fecharModalReagendamento() {
+    modalReagendamento.classList.remove("aberto");
+
+    agendamentoEmReagendamento = null;
+    numeroConsultaHorarios++;
+
+    btnConfirmarReagendamento.disabled = true;
+}
+
+document.getElementById("btnAtualizar")
+    .addEventListener("click", carregarAgenda);
+
 dataReferencia.addEventListener("change", carregarAgenda);
+
 visualizacao.addEventListener("change", carregarAgenda);
+
+novaData.addEventListener("change", carregarHorariosDisponiveis);
+
+novoProfissional.addEventListener(
+    "change",
+    carregarHorariosDisponiveis
+);
+
+novoHorario.addEventListener("change", () => {
+    btnConfirmarReagendamento.disabled = !novoHorario.value;
+});
+
+btnConfirmarReagendamento.addEventListener(
+    "click",
+    confirmarReagendamento
+);
+
+document.getElementById("btnCancelarModal")
+    .addEventListener("click", fecharModalReagendamento);
+
+modalReagendamento.addEventListener("click", event => {
+    if (event.target === modalReagendamento) {
+        fecharModalReagendamento();
+    }
+});
 
 iniciarAgenda();
 </script>
+
 </body>
 </html>
