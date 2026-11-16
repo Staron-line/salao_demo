@@ -240,6 +240,84 @@ button:disabled{opacity:.5;cursor:not-allowed}
     .campo-largo{grid-column:auto}
     .modal-acoes button{flex:1}
 }
+    
+/* =================================
+   PALETA DINÂMICA DO BEAUTYBOOK
+================================= */
+
+:root {
+    --bb-primary: #B89572;
+    --bb-secondary: #F3E9DF;
+    --bb-accent: #604735;
+    --bb-background: #F5EEE7;
+    --bb-surface: #FFFFFF;
+    --bb-text: #493A31;
+    --bb-muted: #887B70;
+    --bb-border: #EADFD5;
+}
+
+body {
+    background: var(--bb-background);
+    color: var(--bb-text);
+}
+
+a {
+    color: var(--bb-primary);
+}
+
+.card,
+.modal {
+    background: var(--bb-surface);
+    color: var(--bb-text);
+}
+
+h1, h2, .modal h2 {
+    color: var(--bb-accent);
+}
+
+input, select, textarea {
+    background: var(--bb-surface);
+    color: var(--bb-text);
+    border-color: var(--bb-border);
+}
+
+button {
+    background: var(--bb-primary);
+    color: #FFFFFF;
+}
+
+.btn-reagendar {
+    background: var(--bb-accent);
+    color: #FFFFFF;
+}
+
+.btn-secundario,
+.btn-historico {
+    background: var(--bb-secondary);
+    color: var(--bb-accent);
+}
+
+.dia-titulo,
+.horario,
+.historico-data {
+    color: var(--bb-accent);
+}
+
+.agendamento {
+    border-color: var(--bb-border);
+    border-left-color: var(--bb-primary);
+}
+
+.historico-item {
+    border-color: var(--bb-border);
+}
+
+.vazio,
+.historico-vazio,
+.modal-descricao {
+    color: var(--bb-muted);
+}
+
 </style>
 </head>
 
@@ -382,6 +460,61 @@ let profissionaisAtivos = [];
 let historicosReagendamentos = [];
 let numeroConsultaHorarios = 0;
 
+async function carregarPaletaEmpresa() {
+
+    const { data, error } = await bb
+        .from("configuracoes_empresa")
+        .select(`
+            cor_primaria,
+            cor_secundaria,
+            cor_destaque,
+            cor_fundo,
+            paleta
+        `)
+        .eq("empresa_id", empresaId)
+        .maybeSingle();
+
+    if (error) {
+        console.error("Erro ao carregar paleta:", error.message);
+        return;
+    }
+
+    if (!data) {
+        console.warn("Este salão ainda não possui uma paleta cadastrada.");
+        return;
+    }
+
+    function corValida(valor, padrao) {
+        return /^#[0-9A-Fa-f]{6}$/.test(valor || "")
+            ? valor
+            : padrao;
+    }
+
+    const raiz = document.documentElement;
+
+    raiz.style.setProperty(
+        "--bb-primary",
+        corValida(data.cor_primaria, "#B89572")
+    );
+
+    raiz.style.setProperty(
+        "--bb-secondary",
+        corValida(data.cor_secundaria, "#F3E9DF")
+    );
+
+    raiz.style.setProperty(
+        "--bb-accent",
+        corValida(data.cor_destaque, "#604735")
+    );
+
+    raiz.style.setProperty(
+        "--bb-background",
+        corValida(data.cor_fundo, "#F5EEE7")
+    );
+
+    console.log("Paleta aplicada:", data.paleta);
+}
+
 const dataReferencia = document.getElementById("dataReferencia");
 const visualizacao = document.getElementById("visualizacao");
 const listaAgenda = document.getElementById("listaAgenda");
@@ -494,9 +627,12 @@ async function iniciarAgenda() {
 
     empresaId = membro.empresa_id;
 
-    dataReferencia.value = dataLocal(new Date());
+// Carrega as cores escolhidas pelo proprietário.
+   await carregarPaletaEmpresa();
 
-    await carregarAgenda();
+   dataReferencia.value = dataLocal(new Date());
+
+   await carregarAgenda();
 }
 
 async function carregarAgenda() {
