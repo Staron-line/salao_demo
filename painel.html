@@ -2,99 +2,275 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel - BeautyBook</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel - BeautyBook</title>
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+<style>
+:root {
+    --primary: #B89572;
+    --secondary: #F3E9DF;
+    --accent: #604735;
+    --background: #f5f1ed;
+    --surface: #ffffff;
+    --text: #604735;
+    --muted: #77685d;
+}
 
-        body {
-            margin: 0;
-            background: #f5f1ed;
-            font-family: Arial, sans-serif;
-            color: #604735;
-        }
+* {
+    box-sizing: border-box;
+}
 
-        header {
-            background: #604735;
-            color: white;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
+body {
+    margin: 0;
+    background: var(--background);
+    font-family: Arial, sans-serif;
+    color: var(--text);
+    transition: background .2s, color .2s;
+}
 
-        header h1 {
-            margin: 0;
-            font-size: 23px;
-        }
+header {
+    background: var(--accent);
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
 
-        header button {
-            background: #b89572;
-            color: white;
-            border: 0;
-            border-radius: 8px;
-            padding: 11px 18px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+header h1 {
+    margin: 0;
+    font-size: 23px;
+}
 
-        main {
-            max-width: 1100px;
-            margin: 30px auto;
-            padding: 0 18px;
-        }
+button {
+    cursor: pointer;
+    font-weight: bold;
+}
 
-        .boas-vindas {
-            background: white;
-            padding: 25px;
-            border-radius: 14px;
-            box-shadow: 0 5px 20px #60473512;
-        }
+header button {
+    background: var(--primary);
+    color: white;
+    border: 0;
+    border-radius: 8px;
+    padding: 11px 18px;
+}
 
-        .boas-vindas h2 {
-            margin-top: 0;
-            color: #8b674c;
-        }
+main {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 0 18px;
+}
 
-        .informacoes {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-            gap: 18px;
-            margin-top: 22px;
-        }
+.boas-vindas {
+    background: var(--surface);
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 5px 20px #00000010;
+}
 
-        .card {
-            background: white;
-            padding: 22px;
-            border-radius: 12px;
-            box-shadow: 0 5px 20px #60473510;
-        }
+.boas-vindas h2 {
+    margin-top: 0;
+    color: var(--primary);
+}
 
-        .card h3 {
-            margin-top: 0;
-            font-size: 16px;
-            color: #8b674c;
-        }
+.informacoes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 18px;
+    margin-top: 22px;
+}
 
-        .card p {
-            margin-bottom: 0;
-            color: #77685d;
-        }
+.card {
+    background: var(--surface);
+    padding: 22px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px #00000010;
+}
 
-        #mensagem {
-            padding: 15px;
-            margin-top: 20px;
-            border-radius: 8px;
-            background: #fff;
-            display: none;
-        }
-    </style>
+.card h3 {
+    margin-top: 0;
+    font-size: 16px;
+    color: var(--primary);
+}
+
+.card p {
+    margin-bottom: 0;
+    color: var(--muted);
+}
+
+#mensagem {
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 8px;
+    background: var(--surface);
+    display: none;
+    line-height: 1.5;
+}
+
+#aparencia {
+    margin-top: 24px;
+    padding: 25px;
+    background: var(--surface);
+    border-radius: 14px;
+    box-shadow: 0 5px 20px #00000010;
+}
+
+#aparencia h2 {
+    margin-top: 0;
+    color: var(--primary);
+}
+
+.aparencia-descricao {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.paletas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.paleta {
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    padding: 14px;
+    background: var(--surface);
+    color: var(--text);
+    text-align: left;
+    transition: .2s;
+}
+
+.paleta:hover {
+    transform: translateY(-2px);
+}
+
+.paleta.selecionada {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--secondary);
+}
+
+.cores {
+    display: flex;
+    gap: 7px;
+    margin-bottom: 12px;
+}
+
+.cor {
+    width: 29px;
+    height: 29px;
+    border-radius: 50%;
+    border: 1px solid #00000015;
+}
+
+.paleta strong {
+    display: block;
+    font-size: 15px;
+}
+
+.paleta small {
+    display: block;
+    margin-top: 5px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.previa {
+    margin-top: 22px;
+    padding: 18px;
+    border-radius: 12px;
+    background: var(--preview-background, #f5f1ed);
+    color: var(--preview-accent, #604735);
+    border: 1px solid #00000012;
+}
+
+.previa-topo {
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--preview-accent, #604735);
+    color: white;
+    font-weight: bold;
+}
+
+.previa-conteudo {
+    margin-top: 12px;
+    padding: 15px;
+    border-radius: 8px;
+    background: white;
+    color: #333;
+}
+
+.previa-botao {
+    margin-top: 12px;
+    padding: 10px 15px;
+    border: 0;
+    border-radius: 7px;
+    background: var(--preview-primary, #B89572);
+    color: white;
+}
+
+.acoes-aparencia {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.btn-salvar {
+    background: var(--accent);
+    color: white;
+    border: 0;
+    border-radius: 8px;
+    padding: 13px 22px;
+}
+
+.btn-salvar:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.estado-paleta {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 12px;
+}
+
+#aparenciaAviso {
+    display: none;
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.aviso-erro {
+    display: block !important;
+    background: #ffe9e9;
+    color: #a32222;
+}
+
+.aviso-sucesso {
+    display: block !important;
+    background: #e5f8ec;
+    color: #176b37;
+}
+
+@media(max-width: 500px) {
+    header h1 {
+        font-size: 19px;
+    }
+
+    #aparencia {
+        padding: 18px;
+    }
+}
+</style>
 </head>
 
 <body>
@@ -141,10 +317,111 @@
 
         <div class="card">
             <h3>Configurações</h3>
-            <p>Em breve: personalização do seu salão.</p>
+            <p>Personalize as cores e a aparência do seu salão abaixo.</p>
         </div>
 
     </div>
+
+    <section id="aparencia" style="display:none">
+
+        <h2>Aparência e cores</h2>
+
+        <p class="aparencia-descricao">
+            Escolha uma identidade visual para o seu estabelecimento.
+            A alteração será salva nas configurações da sua empresa.
+        </p>
+
+        <div class="paletas">
+
+            <button class="paleta" data-paleta="elegance">
+                <div class="cores">
+                    <span class="cor" style="background:#C6A56B"></span>
+                    <span class="cor" style="background:#F1E8D9"></span>
+                    <span class="cor" style="background:#20232C"></span>
+                </div>
+                <strong>Elegance</strong>
+                <small>Sofisticação e luxo</small>
+            </button>
+
+            <button class="paleta" data-paleta="rose">
+                <div class="cores">
+                    <span class="cor" style="background:#BD7888"></span>
+                    <span class="cor" style="background:#F7E9E9"></span>
+                    <span class="cor" style="background:#704653"></span>
+                </div>
+                <strong>Rosé</strong>
+                <small>Delicadeza e beleza</small>
+            </button>
+
+            <button class="paleta" data-paleta="nature">
+                <div class="cores">
+                    <span class="cor" style="background:#54745C"></span>
+                    <span class="cor" style="background:#E8EFE8"></span>
+                    <span class="cor" style="background:#34513B"></span>
+                </div>
+                <strong>Nature</strong>
+                <small>Natural e acolhedor</small>
+            </button>
+
+            <button class="paleta" data-paleta="lavender">
+                <div class="cores">
+                    <span class="cor" style="background:#7465A8"></span>
+                    <span class="cor" style="background:#E9E7F5"></span>
+                    <span class="cor" style="background:#514477"></span>
+                </div>
+                <strong>Lavanda</strong>
+                <small>Moderno e delicado</small>
+            </button>
+
+            <button class="paleta" data-paleta="ocean">
+                <div class="cores">
+                    <span class="cor" style="background:#39758A"></span>
+                    <span class="cor" style="background:#E5EFF3"></span>
+                    <span class="cor" style="background:#28596A"></span>
+                </div>
+                <strong>Ocean</strong>
+                <small>Frescor e modernidade</small>
+            </button>
+
+            <button class="paleta" data-paleta="minimal">
+                <div class="cores">
+                    <span class="cor" style="background:#77736B"></span>
+                    <span class="cor" style="background:#F0EDE7"></span>
+                    <span class="cor" style="background:#49463F"></span>
+                </div>
+                <strong>Minimal</strong>
+                <small>Limpo e contemporâneo</small>
+            </button>
+
+        </div>
+
+        <div class="previa" id="previa">
+            <div class="previa-topo">
+                Pré-visualização BeautyBook
+            </div>
+
+            <div class="previa-conteudo">
+                <strong>Meu salão</strong>
+                <p>Veja como ficará a identidade visual escolhida.</p>
+                <button class="previa-botao" type="button">
+                    Exemplo de botão
+                </button>
+            </div>
+        </div>
+
+        <p class="estado-paleta" id="estadoPaleta">
+            Selecione uma paleta para visualizar.
+        </p>
+
+        <div class="acoes-aparencia">
+            <button class="btn-salvar" id="btnSalvarPaleta" disabled>
+                Salvar aparência
+            </button>
+        </div>
+
+        <div id="aparenciaAviso" role="status"></div>
+
+    </section>
 
     <div id="mensagem" role="status"></div>
 
@@ -154,7 +431,6 @@
 <script src="supabase-config.js"></script>
 
 <script>
-
 const bb = window.beautybookSupabase;
 
 const nomeSalao = document.getElementById("nomeSalao");
@@ -162,8 +438,247 @@ const emailUsuario = document.getElementById("emailUsuario");
 const tipoAcesso = document.getElementById("tipoAcesso");
 const mensagem = document.getElementById("mensagem");
 
+const aparencia = document.getElementById("aparencia");
+const aparenciaAviso = document.getElementById("aparenciaAviso");
+const btnSalvarPaleta = document.getElementById("btnSalvarPaleta");
+const estadoPaleta = document.getElementById("estadoPaleta");
+
+let empresaId = null;
+let paletaAtual = null;
+let paletaSelecionada = null;
+let configuracaoDisponivel = false;
+
+const paletas = {
+    elegance: {
+        nome: "Elegance",
+        primaria: "#C6A56B",
+        secundaria: "#F1E8D9",
+        destaque: "#20232C",
+        fundo: "#FAF8F4"
+    },
+
+    rose: {
+        nome: "Rosé",
+        primaria: "#BD7888",
+        secundaria: "#F7E9E9",
+        destaque: "#704653",
+        fundo: "#FFF9F7"
+    },
+
+    nature: {
+        nome: "Nature",
+        primaria: "#54745C",
+        secundaria: "#E8EFE8",
+        destaque: "#34513B",
+        fundo: "#F7F5EC"
+    },
+
+    lavender: {
+        nome: "Lavanda",
+        primaria: "#7465A8",
+        secundaria: "#E9E7F5",
+        destaque: "#514477",
+        fundo: "#FAF9FF"
+    },
+
+    ocean: {
+        nome: "Ocean",
+        primaria: "#39758A",
+        secundaria: "#E5EFF3",
+        destaque: "#28596A",
+        fundo: "#F5FAFC"
+    },
+
+    minimal: {
+        nome: "Minimal",
+        primaria: "#77736B",
+        secundaria: "#F0EDE7",
+        destaque: "#49463F",
+        fundo: "#FFFFFF"
+    }
+};
+
+function mostrarMensagem(texto, tipo = "erro") {
+    mensagem.style.display = "block";
+    mensagem.style.color = tipo === "erro" ? "#a04465" : "#176b37";
+    mensagem.textContent = texto;
+}
+
+function mostrarAvisoAparencia(texto, tipo = "erro") {
+    aparenciaAviso.textContent = texto;
+    aparenciaAviso.className =
+        tipo === "erro" ? "aviso-erro" : "aviso-sucesso";
+}
+
+function limparAvisoAparencia() {
+    aparenciaAviso.textContent = "";
+    aparenciaAviso.className = "";
+}
+
+function aplicarCoresNaTela(paleta) {
+    document.documentElement.style.setProperty(
+        "--primary", paleta.primaria
+    );
+
+    document.documentElement.style.setProperty(
+        "--secondary", paleta.secundaria
+    );
+
+    document.documentElement.style.setProperty(
+        "--accent", paleta.destaque
+    );
+
+    document.documentElement.style.setProperty(
+        "--background", paleta.fundo
+    );
+
+    document.documentElement.style.setProperty(
+        "--preview-primary", paleta.primaria
+    );
+
+    document.documentElement.style.setProperty(
+        "--preview-accent", paleta.destaque
+    );
+
+    document.documentElement.style.setProperty(
+        "--preview-background", paleta.fundo
+    );
+}
+
+function selecionarPaleta(nome) {
+    const paleta = paletas[nome];
+
+    if (!paleta) return;
+
+    paletaSelecionada = nome;
+
+    document.querySelectorAll(".paleta").forEach(botao => {
+        botao.classList.toggle(
+            "selecionada",
+            botao.dataset.paleta === nome
+        );
+    });
+
+    aplicarCoresNaTela(paleta);
+
+    estadoPaleta.textContent =
+        "Pré-visualização selecionada: " + paleta.nome;
+
+    btnSalvarPaleta.disabled =
+        !configuracaoDisponivel || nome === paletaAtual;
+}
+
+async function carregarAparencia() {
+    const { data, error } = await bb
+        .from("configuracoes_empresa")
+        .select(
+            "empresa_id, cor_primaria, cor_secundaria, cor_destaque, cor_fundo, tema, paleta"
+        )
+        .eq("empresa_id", empresaId)
+        .maybeSingle();
+
+    if (error) {
+        throw error;
+    }
+
+    if (!data) {
+        configuracaoDisponivel = false;
+        btnSalvarPaleta.disabled = true;
+
+        mostrarAvisoAparencia(
+            "Ainda não existe uma configuração visual cadastrada para esta empresa. Nenhuma configuração foi criada ou alterada automaticamente."
+        );
+
+        return;
+    }
+
+    configuracaoDisponivel = true;
+    paletaAtual = data.paleta || "customizada";
+
+    // Para registros antigos ou personalizados, preserva as cores existentes.
+    if (paletas[paletaAtual]) {
+        selecionarPaleta(paletaAtual);
+    } else {
+        aplicarCoresNaTela({
+            primaria: data.cor_primaria,
+            secundaria: data.cor_secundaria,
+            destaque: data.cor_destaque,
+            fundo: data.cor_fundo
+        });
+
+        estadoPaleta.textContent =
+            "Sua aparência atual está personalizada. Escolha uma nova paleta se desejar.";
+    }
+
+    btnSalvarPaleta.disabled = true;
+}
+
+async function salvarPaleta() {
+    if (!empresaId || !configuracaoDisponivel || !paletaSelecionada) {
+        return;
+    }
+
+    const paleta = paletas[paletaSelecionada];
+
+    if (!paleta) return;
+
+    btnSalvarPaleta.disabled = true;
+    btnSalvarPaleta.textContent = "Salvando...";
+    limparAvisoAparencia();
+
+    try {
+        const { data, error } = await bb
+            .from("configuracoes_empresa")
+            .update({
+                paleta: paletaSelecionada,
+                cor_primaria: paleta.primaria,
+                cor_secundaria: paleta.secundaria,
+                cor_destaque: paleta.destaque,
+                cor_fundo: paleta.fundo,
+                updated_at: new Date().toISOString()
+            })
+            .eq("empresa_id", empresaId)
+            .select("empresa_id, paleta")
+            .maybeSingle();
+
+        if (error) throw error;
+
+        if (!data) {
+            throw new Error(
+                "A configuração não foi atualizada. Verifique se sua conta possui permissão de proprietário."
+            );
+        }
+
+        paletaAtual = paletaSelecionada;
+
+        mostrarAvisoAparencia(
+            "Paleta " + paleta.nome + " salva com sucesso!",
+            "sucesso"
+        );
+
+        estadoPaleta.textContent =
+            "Paleta ativa neste painel: " + paleta.nome;
+
+    } catch (error) {
+        mostrarAvisoAparencia(
+            "Não foi possível salvar: " + error.message
+        );
+    } finally {
+        btnSalvarPaleta.textContent = "Salvar aparência";
+        btnSalvarPaleta.disabled =
+            !configuracaoDisponivel ||
+            paletaSelecionada === paletaAtual;
+    }
+}
+
 async function carregarPainel() {
     try {
+        if (!bb) {
+            throw new Error(
+                "Não foi possível carregar a conexão com o Supabase."
+            );
+        }
+
         const { data: sessaoData, error: erroSessao } =
             await bb.auth.getSession();
 
@@ -195,11 +710,13 @@ async function carregarPainel() {
             );
         }
 
+        empresaId = membro.empresa_id;
+
         const { data: empresa, error: erroEmpresa } =
             await bb
                 .from("empresas")
                 .select("nome_fantasia, nome_proprietario")
-                .eq("id", membro.empresa_id)
+                .eq("id", empresaId)
                 .maybeSingle();
 
         if (erroEmpresa) throw erroEmpresa;
@@ -215,28 +732,45 @@ async function carregarPainel() {
 
         mensagem.style.display = "none";
 
+        // A personalização fica disponível apenas ao proprietário.
+        if (membro.papel === "proprietario") {
+            aparencia.style.display = "block";
+            await carregarAparencia();
+        } else {
+            aparencia.style.display = "none";
+        }
+
     } catch (error) {
-        mensagem.style.display = "block";
-        mensagem.style.color = "#a04465";
-        mensagem.textContent = "Atenção: " + error.message;
+        mostrarMensagem("Atenção: " + error.message);
         nomeSalao.textContent = "Não foi possível carregar o salão.";
     }
 }
 
-document.getElementById("btnSair").addEventListener("click", async function() {
-    const { error } = await bb.auth.signOut();
-
-    if (error) {
-        mensagem.style.display = "block";
-        mensagem.textContent = "Erro ao sair: " + error.message;
-        return;
-    }
-
-    window.location.replace("login.html");
+document.querySelectorAll(".paleta").forEach(botao => {
+    botao.addEventListener("click", () => {
+        selecionarPaleta(botao.dataset.paleta);
+        limparAvisoAparencia();
+    });
 });
+
+btnSalvarPaleta.addEventListener("click", salvarPaleta);
+
+document.getElementById("btnSair").addEventListener(
+    "click",
+    async function() {
+        const { error } = await bb.auth.signOut();
+
+        if (error) {
+            mostrarMensagem("Erro ao sair: " + error.message);
+            return;
+        }
+
+        window.location.replace("login.html");
+    }
+);
 
 carregarPainel();
 </script>
-    
+
 </body>
 </html>
