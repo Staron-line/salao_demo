@@ -495,6 +495,119 @@ async function carregarProfissionais() {
 }
 
 function aplicarFiltros() {
+    async function gerarAcessoProfissional(profissional, botao) {
+    if (!profissional.ativo) {
+        mostrarMensagem("Somente profissionais ativos podem receber acesso.");
+        return;
+    }
+
+    if (profissional.user_id) {
+        mostrarMensagem("Esta profissional já possui acesso individual.");
+        return;
+    }
+
+    const email = prompt(
+        "Informe o e-mail que será utilizado por " +
+        profissional.nome +
+        " para entrar no BeautyBook:"
+    );
+
+    if (email === null) return;
+
+    const emailValidado = email.trim().toLowerCase();
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValidado)) {
+        mostrarMensagem("Informe um endereço de e-mail válido.");
+        return;
+    }
+
+    const confirmar = confirm(
+        "Criar acesso individual para " +
+        profissional.nome +
+        " usando o e-mail " +
+        emailValidado +
+        "?"
+    );
+
+    if (!confirmar) return;
+
+    botao.disabled = true;
+    botao.textContent = "Criando acesso...";
+
+    try {
+        const { data, error } = await bb.functions.invoke(
+            "gerenciar-acesso-profissional",
+            {
+                body: {
+                    profissional_id: profissional.id,
+                    email: emailValidado
+                }
+            }
+        );
+
+        if (error) {
+            let detalhe = error.message;
+
+            try {
+                const resposta = await error.context.json();
+                detalhe = resposta.erro || detalhe;
+            } catch (_) {}
+
+            throw new Error(detalhe);
+        }
+
+        if (!data || !data.sucesso) {
+            throw new Error(
+                data?.erro || "Não foi possível criar o acesso."
+            );
+        }
+
+        const senha = data.senha_provisoria;
+
+        if (!senha) {
+            throw new Error(
+                "O acesso foi criado, mas a senha provisória não foi retornada. Verifique o painel antes de tentar novamente."
+            );
+        }
+
+        let resultado =
+            "ACESSO CRIADO COM SUCESSO!\n\n" +
+            "Profissional: " + profissional.nome + "\n" +
+            "E-mail: " + data.email + "\n" +
+            "Senha provisória: " + senha + "\n\n" +
+            "A profissional deverá trocar a senha no primeiro acesso.";
+
+        if (data.whatsapp_url) {
+            resultado +=
+                "\n\nClique em OK para abrir o WhatsApp e enviar os dados.";
+        } else {
+            resultado +=
+                "\n\nNão há telefone válido cadastrado. " +
+                "Compartilhe os dados de acesso com a profissional por outro meio seguro.";
+        }
+
+        alert(resultado);
+
+        if (data.whatsapp_url) {
+            window.open(data.whatsapp_url, "_blank");
+        }
+
+        mostrarMensagem(
+            "Acesso criado para " + profissional.nome + ".",
+            true
+        );
+
+        await carregarProfissionais();
+
+    } catch (error) {
+        mostrarMensagem(
+            "Erro ao gerar acesso: " + error.message
+        );
+
+        botao.disabled = false;
+        botao.textContent = "Gerar acesso profissional";
+    }
+}
     const pesquisa = document.getElementById("pesquisaNome")
         .value.trim().toLocaleLowerCase("pt-BR");
 
@@ -597,8 +710,26 @@ function aplicarFiltros() {
 
         acoes.append(editar, excluir, expediente);
 
-        item.append(informacoes, acoes, areaExpediente);
-        lista.appendChild(item);
+       // Botão para gerar acesso individual
+const acesso = document.createElement("button");
+acesso.className = "botao-secundario";
+acesso.textContent = profissional.user_id
+    ? "Acesso já criado"
+    : "Gerar acesso profissional";
+
+acesso.disabled = !!profissional.user_id || !profissional.ativo;
+
+if (profissional.user_id) {
+    acesso.title = "Esta profissional já possui acesso individual.";
+}
+
+acesso.addEventListener("click", () => {
+    gerarAcessoProfissional(profissional, acesso);
+});
+
+acoes.append(editar, excluir, expediente, acesso);
+
+item.append(informacoes, acoes, areaExpediente);
     });
 }
 
