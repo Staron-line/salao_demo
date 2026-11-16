@@ -95,6 +95,13 @@ button:disabled{opacity:.5;cursor:not-allowed}
     color:#493a31;
 }
 
+.btn-historico{
+    margin-top:10px;
+    background:#e9ded4;
+    color:#493a31;
+    width:100%;
+}
+
 .dia-titulo{
     margin:25px 0 12px;
     font-size:17px;
@@ -132,7 +139,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
 #mensagem{margin-top:15px;font-size:14px}
 
-/* Janela de reagendamento */
+/* Modais */
 
 .modal-fundo{
     display:none;
@@ -155,6 +162,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
     border-radius:16px;
     padding:25px;
     box-shadow:0 10px 40px #0003;
+    max-height:90vh;
+    overflow-y:auto;
 }
 
 .modal h2{
@@ -195,6 +204,29 @@ button:disabled{opacity:.5;cursor:not-allowed}
     gap:10px;
     margin-top:22px;
     flex-wrap:wrap;
+}
+
+/* Histórico */
+
+.historico-item{
+    border:1px solid #eadfd5;
+    border-radius:10px;
+    padding:15px;
+    margin-top:12px;
+    line-height:1.7;
+    font-size:14px;
+}
+
+.historico-data{
+    font-weight:bold;
+    color:#765438;
+    margin-bottom:8px;
+}
+
+.historico-vazio{
+    padding:20px;
+    text-align:center;
+    color:#887b70;
 }
 
 @media(max-width:600px){
@@ -316,6 +348,30 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
 </div>
 
+<!-- Modal de histórico -->
+
+<div class="modal-fundo" id="modalHistorico">
+
+    <div class="modal">
+
+        <h2>Histórico de reagendamentos</h2>
+
+        <div class="modal-descricao" id="descricaoHistorico">
+            Alterações realizadas neste atendimento.
+        </div>
+
+        <div id="listaHistorico"></div>
+
+        <div class="modal-acoes">
+            <button class="btn-secundario" id="btnFecharHistorico">
+                Fechar
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
 <script>
 const bb = window.beautybookSupabase;
 
@@ -323,6 +379,7 @@ let empresaId = null;
 let agendamentos = [];
 let agendamentoEmReagendamento = null;
 let profissionaisAtivos = [];
+let historicosReagendamentos = [];
 let numeroConsultaHorarios = 0;
 
 const dataReferencia = document.getElementById("dataReferencia");
@@ -338,6 +395,10 @@ const novoHorario = document.getElementById("novoHorario");
 const motivoReagendamento = document.getElementById("motivoReagendamento");
 const mensagemModal = document.getElementById("mensagemModal");
 const btnConfirmarReagendamento = document.getElementById("btnConfirmarReagendamento");
+
+const modalHistorico = document.getElementById("modalHistorico");
+const listaHistorico = document.getElementById("listaHistorico");
+const descricaoHistorico = document.getElementById("descricaoHistorico");
 
 const statusPermitidos = [
     "pendente",
@@ -365,6 +426,8 @@ function dataLocal(data) {
 }
 
 function formatarData(valor) {
+    if (!valor) return "Não informada";
+
     const partes = valor.split("-");
     return `${partes[2]}/${partes[1]}/${partes[0]}`;
 }
@@ -467,8 +530,39 @@ async function buscarInformacoesRelacionadas() {
     const servicos = {};
 
     const clienteIds = [...new Set(agendamentos.map(a => a.cliente_id))];
-    const profissionalIds = [...new Set(agendamentos.map(a => a.profissional_id))];
     const servicoIds = [...new Set(agendamentos.map(a => a.servico_id))];
+
+    historicosReagendamentos = [];
+
+    const agendamentoIds = agendamentos.map(a => a.id);
+
+    // Busca o histórico dos atendimentos do período.
+    if (agendamentoIds.length) {
+
+        const { data, error } = await bb
+            .from("historico_reagendamentos")
+            .select("*")
+            .eq("empresa_id", empresaId)
+            .in("agendamento_id", agendamentoIds)
+            .order("alterado_em", { ascending: false });
+
+        if (error) {
+            mensagem.textContent =
+                "Não foi possível carregar o histórico: " + error.message;
+            return;
+        }
+
+        historicosReagendamentos = data || [];
+    }
+
+    // Inclui profissionais atuais e anteriores.
+    const profissionalIds = [...new Set([
+        ...agendamentos.map(a => a.profissional_id),
+        ...historicosReagendamentos.flatMap(h => [
+            h.profissional_anterior,
+            h.profissional_novo
+        ]).filter(Boolean)
+    ])];
 
     if (clienteIds.length) {
         const { data, error } = await bb
@@ -478,7 +572,8 @@ async function buscarInformacoesRelacionadas() {
             .in("id", clienteIds);
 
         if (error) {
-            mensagem.textContent = "Erro ao consultar clientes: " + error.message;
+            mensagem.textContent =
+                "Erro ao consultar clientes: " + error.message;
             return;
         }
 
@@ -493,7 +588,8 @@ async function buscarInformacoesRelacionadas() {
             .in("id", profissionalIds);
 
         if (error) {
-            mensagem.textContent = "Erro ao consultar profissionais: " + error.message;
+            mensagem.textContent =
+                "Erro ao consultar profissionais: " + error.message;
             return;
         }
 
@@ -508,7 +604,8 @@ async function buscarInformacoesRelacionadas() {
             .in("id", servicoIds);
 
         if (error) {
-            mensagem.textContent = "Erro ao consultar serviços: " + error.message;
+            mensagem.textContent =
+                "Erro ao consultar serviços: " + error.message;
             return;
         }
 
@@ -546,6 +643,7 @@ function renderizarAgenda(clientes, profissionais, servicos) {
                 "vazio"
             )
         );
+
         mensagem.textContent = "Nenhum agendamento encontrado.";
         return;
     }
@@ -665,7 +763,7 @@ function renderizarAgenda(clientes, profissionais, servicos) {
 
         controle.appendChild(seletor);
 
-        // O botão aparece somente para pendentes e confirmados.
+        // Botão de reagendamento.
         if (
             agendamento.status === "pendente" ||
             agendamento.status === "confirmado"
@@ -683,6 +781,32 @@ function renderizarAgenda(clientes, profissionais, servicos) {
             controle.appendChild(botaoReagendar);
         }
 
+        // Botão de histórico, quando existem alterações.
+        const historicoDoAgendamento = historicosReagendamentos.filter(
+            h => h.agendamento_id === agendamento.id
+        );
+
+        if (historicoDoAgendamento.length) {
+
+            const botaoHistorico = document.createElement("button");
+
+            botaoHistorico.type = "button";
+            botaoHistorico.className = "btn-historico";
+
+            botaoHistorico.textContent =
+                "Ver histórico (" + historicoDoAgendamento.length + ")";
+
+            botaoHistorico.addEventListener("click", () => {
+                abrirHistorico(
+                    agendamento,
+                    historicoDoAgendamento,
+                    profissionais
+                );
+            });
+
+            controle.appendChild(botaoHistorico);
+        }
+
         card.append(informacoes, controle);
         listaAgenda.appendChild(card);
     });
@@ -690,6 +814,124 @@ function renderizarAgenda(clientes, profissionais, servicos) {
     mensagem.textContent =
         agendamentos.length + " agendamento(s) encontrado(s).";
 }
+
+/* ================================
+   HISTÓRICO DE REAGENDAMENTOS
+================================ */
+
+function abrirHistorico(agendamento, historicos, profissionais) {
+
+    listaHistorico.innerHTML = "";
+
+    descricaoHistorico.textContent =
+        "Histórico do atendimento de " +
+        formatarData(agendamento.data) + ".";
+
+    if (!historicos.length) {
+        listaHistorico.appendChild(
+            criarTexto(
+                "div",
+                "Nenhuma alteração registrada.",
+                "historico-vazio"
+            )
+        );
+    }
+
+    historicos.forEach(h => {
+
+        const item = document.createElement("div");
+        item.className = "historico-item";
+
+        const dataAlteracao = new Date(h.alterado_em)
+            .toLocaleString("pt-BR");
+
+        const profissionalAnterior =
+            profissionais[h.profissional_anterior]?.nome ||
+            "Não identificado";
+
+        const profissionalNovo =
+            profissionais[h.profissional_novo]?.nome ||
+            "Não identificado";
+
+        item.appendChild(
+            criarTexto(
+                "div",
+                "Alteração realizada em " + dataAlteracao,
+                "historico-data"
+            )
+        );
+
+        item.appendChild(
+            criarTexto(
+                "div",
+                "Data anterior: " + formatarData(h.data_anterior)
+            )
+        );
+
+        item.appendChild(
+            criarTexto(
+                "div",
+                "Horário anterior: " +
+                h.hora_inicio_anterior.slice(0,5) +
+                " às " + h.hora_fim_anterior.slice(0,5)
+            )
+        );
+
+        item.appendChild(
+            criarTexto(
+                "div",
+                "Nova data: " + formatarData(h.data_nova)
+            )
+        );
+
+        item.appendChild(
+            criarTexto(
+                "div",
+                "Novo horário: " +
+                h.hora_inicio_nova.slice(0,5) +
+                " às " + h.hora_fim_nova.slice(0,5)
+            )
+        );
+
+        item.appendChild(
+            criarTexto(
+                "div",
+                "Profissional anterior: " + profissionalAnterior
+            )
+        );
+
+        item.appendChild(
+            criarTexto(
+                "div",
+                "Novo profissional: " + profissionalNovo
+            )
+        );
+
+        item.appendChild(
+            criarTexto(
+                "div",
+                "Motivo: " + (h.motivo || "Não informado")
+            )
+        );
+
+        listaHistorico.appendChild(item);
+    });
+
+    modalHistorico.classList.add("aberto");
+}
+
+function fecharHistorico() {
+    modalHistorico.classList.remove("aberto");
+}
+
+document.getElementById("btnFecharHistorico")
+    .addEventListener("click", fecharHistorico);
+
+modalHistorico.addEventListener("click", event => {
+    if (event.target === modalHistorico) {
+        fecharHistorico();
+    }
+});
 
 /* ================================
    REAGENDAMENTO
@@ -737,7 +979,6 @@ async function carregarProfissionaisParaReagendamento(agendamento) {
 
     const profissionais = data || [];
 
-    // Consulta os vínculos entre profissionais e serviços.
     const { data: vinculos, error: erroVinculos } = await bb
         .from("profissionais_servicos")
         .select("profissional_id")
@@ -926,7 +1167,6 @@ async function carregarHorariosDisponiveis() {
 
     const horariosLivres = [];
 
-    // Gera horários de 15 em 15 minutos, ancorados no início do expediente.
     for (
         let inicio = inicioExpediente;
         inicio + duracao <= fimExpediente;
@@ -934,7 +1174,6 @@ async function carregarHorariosDisponiveis() {
     ) {
         const fim = inicio + duracao;
 
-        // Não permite horários anteriores ao momento atual.
         if (
             dataSelecionada === hoje &&
             inicio <= minutosAgora
@@ -942,10 +1181,8 @@ async function carregarHorariosDisponiveis() {
             continue;
         }
 
-        // Não permite cruzar a meia-noite.
         if (fim > 1439) continue;
 
-        // Verifica intervalo do profissional.
         if (
             intervaloInicio !== null &&
             intervaloFim !== null &&
@@ -955,10 +1192,8 @@ async function carregarHorariosDisponiveis() {
             continue;
         }
 
-        // Verifica bloqueios da agenda.
         const possuiBloqueio = (bloqueios || []).some(b => {
 
-            // Bloqueio sem horário significa dia inteiro.
             if (!b.hora_inicio || !b.hora_fim) {
                 return true;
             }
@@ -971,7 +1206,6 @@ async function carregarHorariosDisponiveis() {
 
         if (possuiBloqueio) continue;
 
-        // Verifica outros atendimentos, desconsiderando o próprio.
         const possuiConflito = (ocupados || []).some(a => {
 
             if (a.id === agendamento.id) {
