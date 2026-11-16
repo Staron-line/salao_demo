@@ -6,6 +6,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Painel - BeautyBook</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+
 <style>
 :root {
     --primary: #B89572;
@@ -17,9 +20,7 @@
     --muted: #77685d;
 }
 
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
@@ -78,7 +79,7 @@ main {
 
 .informacoes {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
     gap: 18px;
     margin-top: 22px;
 }
@@ -92,7 +93,7 @@ main {
 
 .card h3 {
     margin-top: 0;
-    font-size: 16px;
+    font-size: 17px;
     color: var(--primary);
 }
 
@@ -102,6 +103,16 @@ main {
     line-height: 1.5;
     min-height: 42px;
 }
+
+.btn-salvar {
+    background: var(--accent);
+    color: white;
+    border: 0;
+    border-radius: 8px;
+    padding: 13px 22px;
+}
+
+.btn-salvar:hover { opacity: .88; }
 
 #mensagem {
     padding: 15px;
@@ -148,9 +159,7 @@ main {
     transition: .2s;
 }
 
-.paleta:hover {
-    transform: translateY(-2px);
-}
+.paleta:hover { transform: translateY(-2px); }
 
 .paleta.selecionada {
     border-color: var(--primary);
@@ -223,18 +232,6 @@ main {
     margin-top: 20px;
 }
 
-.btn-salvar {
-    background: var(--accent);
-    color: white;
-    border: 0;
-    border-radius: 8px;
-    padding: 13px 22px;
-}
-
-.btn-salvar:hover {
-    opacity: .88;
-}
-
 .btn-salvar:disabled {
     opacity: .5;
     cursor: not-allowed;
@@ -268,17 +265,9 @@ main {
 }
 
 @media(max-width: 500px) {
-    header h1 {
-        font-size: 19px;
-    }
-
-    #aparencia {
-        padding: 18px;
-    }
-
-    .card {
-        padding: 18px;
-    }
+    header h1 { font-size: 19px; }
+    #aparencia { padding: 18px; }
+    .card { padding: 18px; }
 }
 </style>
 </head>
@@ -298,55 +287,34 @@ main {
         <p id="tipoAcesso"></p>
     </section>
 
-    <!-- ATALHOS DOS MÓDULOS -->
+    <!-- MÓDULOS ADMINISTRATIVOS -->
 
     <div class="informacoes">
 
         <div class="card">
             <h3>Agenda do salão</h3>
             <p>Visualize e gerencie os agendamentos do estabelecimento.</p>
-            <button class="btn-salvar" onclick="window.location.href='agenda.html'">
+            <button class="btn-salvar"
+                onclick="window.location.href='agenda.html'">
                 Abrir agenda
             </button>
         </div>
 
         <div class="card">
             <h3>Profissionais</h3>
-            <p>Cadastre profissionais e gerencie a equipe e os horários.</p>
-            <button class="btn-salvar" onclick="window.location.href='profissionais.html'">
+            <p>Cadastre profissionais, gerencie a equipe e configure os horários.</p>
+            <button class="btn-salvar"
+                onclick="window.location.href='profissionais.html'">
                 Abrir profissionais
             </button>
         </div>
 
         <div class="card">
             <h3>Serviços</h3>
-            <p>Cadastre e gerencie os serviços, descrições e valores.</p>
-            <button class="btn-salvar" onclick="window.location.href='servicos.html'">
+            <p>Cadastre serviços, descrições, valores e fotografias.</p>
+            <button class="btn-salvar"
+                onclick="window.location.href='servicos.html'">
                 Abrir serviços
-            </button>
-        </div>
-
-        <div class="card">
-            <h3>Login profissional</h3>
-            <p>Acesso destinado aos profissionais do estabelecimento.</p>
-            <button class="btn-salvar" onclick="window.location.href='login-profissional.html'">
-                Acessar login
-            </button>
-        </div>
-
-        <div class="card">
-            <h3>Agenda pública</h3>
-            <p>Visualize a página utilizada pelos clientes para agendar.</p>
-            <button class="btn-salvar" onclick="window.location.href='agendar.html'">
-                Abrir agenda pública
-            </button>
-        </div>
-
-        <div class="card">
-            <h3>Configurações</h3>
-            <p>Personalize as cores e a aparência visual do seu salão.</p>
-            <button class="btn-salvar" id="btnAbrirAparencia">
-                Personalizar aparência
             </button>
         </div>
 
@@ -459,9 +427,6 @@ main {
 
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-config.js"></script>
-
 <script>
 const bb = window.beautybookSupabase;
 
@@ -532,7 +497,8 @@ const paletas = {
 
 function mostrarMensagem(texto, tipo = "erro") {
     mensagem.style.display = "block";
-    mensagem.style.color = tipo === "erro" ? "#a04465" : "#176b37";
+    mensagem.style.color =
+        tipo === "erro" ? "#a04465" : "#176b37";
     mensagem.textContent = texto;
 }
 
@@ -609,9 +575,7 @@ async function carregarAparencia() {
         .eq("empresa_id", empresaId)
         .maybeSingle();
 
-    if (error) {
-        throw error;
-    }
+    if (error) throw error;
 
     if (!data) {
         configuracaoDisponivel = false;
@@ -786,24 +750,6 @@ document.querySelectorAll(".paleta").forEach(botao => {
 
 // Salvar aparência
 btnSalvarPaleta.addEventListener("click", salvarPaleta);
-
-// Abrir a área de aparência
-document.getElementById("btnAbrirAparencia").addEventListener(
-    "click",
-    function() {
-        if (aparencia.style.display === "none") {
-            mostrarMensagem(
-                "A personalização da aparência está disponível para o proprietário do salão."
-            );
-            return;
-        }
-
-        aparencia.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-    }
-);
 
 // Sair da conta
 document.getElementById("btnSair").addEventListener(
