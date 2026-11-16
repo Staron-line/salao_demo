@@ -191,6 +191,68 @@ body {
     .campo-completo { grid-column: auto; }
     .card { padding: 17px; }
 }
+    /* Paleta dinâmica BeautyBook */
+:root {
+    --bb-primary: #C6A56B;
+    --bb-secondary: #F1E8D9;
+    --bb-accent: #20232C;
+    --bb-background: #FAF8F4;
+    --bb-surface: #FFFFFF;
+    --bb-text: #493A31;
+    --bb-muted: #887B70;
+    --bb-border: #EADFD5;
+}
+
+body {
+    background: var(--bb-background);
+    color: var(--bb-text);
+}
+
+.voltar,
+.area-expediente h4 {
+    color: var(--bb-accent);
+}
+
+.card {
+    background: var(--bb-surface);
+}
+
+.campo input,
+.campo select,
+.expediente-dia input[type="time"] {
+    background: var(--bb-surface);
+    color: var(--bb-text);
+    border-color: var(--bb-border);
+}
+
+.botao {
+    background: var(--bb-primary);
+    color: #fff;
+}
+
+.botao-secundario {
+    background: var(--bb-secondary);
+    color: var(--bb-accent);
+}
+
+.profissional,
+.area-expediente {
+    border-color: var(--bb-border);
+}
+
+.expediente-dia {
+    border-color: var(--bb-border);
+}
+
+.controle-expediente input {
+    accent-color: var(--bb-primary);
+}
+
+.resumo-expediente,
+.mensagem-expediente {
+    color: var(--bb-muted);
+}
+    
 </style>
 </head>
 
