@@ -1,3 +1,4 @@
+
 const BEAUTYBOOK_SUPABASE_URL =
     "https://utewurlabmgnmxpoosax.supabase.co";
 
@@ -6,5 +7,12 @@ const BEAUTYBOOK_SUPABASE_KEY =
 
 window.beautybookSupabase = window.supabase.createClient(
     BEAUTYBOOK_SUPABASE_URL,
-    BEAUTYBOOK_SUPABASE_KEY
+    BEAUTYBOOK_SUPABASE_KEY,
+    {
+        auth: {
+            autoRefreshToken: true,
+            persistSession: true,
+            detectSessionInUrl: true
+        }
+    }
 );
