@@ -369,6 +369,53 @@ const botaoCancelar = document.getElementById("btnCancelar");
 let empresaId = null;
 let profissionalEditando = null;
 let profissionais = [];
+async function carregarPaletaEmpresa() {
+    const { data, error } = await bb
+        .from("configuracoes_empresa")
+        .select("cor_primaria, cor_secundaria, cor_destaque, cor_fundo, paleta")
+        .eq("empresa_id", empresaId)
+        .maybeSingle();
+
+    if (error) {
+        console.error("Erro ao carregar paleta:", error);
+        return;
+    }
+
+    if (!data) {
+        console.warn("Configuração de cores não encontrada. Usando cores padrão.");
+        return;
+    }
+
+    function corValida(valor, padrao) {
+        return /^#[0-9A-Fa-f]{6}$/.test(valor || "")
+            ? valor
+            : padrao;
+    }
+
+    const raiz = document.documentElement;
+
+    raiz.style.setProperty(
+        "--bb-primary",
+        corValida(data.cor_primaria, "#C6A56B")
+    );
+
+    raiz.style.setProperty(
+        "--bb-secondary",
+        corValida(data.cor_secundaria, "#F1E8D9")
+    );
+
+    raiz.style.setProperty(
+        "--bb-accent",
+        corValida(data.cor_destaque, "#20232C")
+    );
+
+    raiz.style.setProperty(
+        "--bb-background",
+        corValida(data.cor_fundo, "#FAF8F4")
+    );
+
+    console.log("Paleta BeautyBook aplicada:", data.paleta);
+}    
 
 const diasSemana = [
     "Domingo",
@@ -423,8 +470,9 @@ async function iniciar() {
 
         empresaId = membro.empresa_id;
 
-        await carregarProfissionais();
+        await carregarPaletaEmpresa();
 
+        await carregarProfissionais();
     } catch (error) {
         mostrarMensagem("Erro ao carregar: " + error.message);
         lista.textContent = "Não foi possível carregar a equipe.";
