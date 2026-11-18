@@ -1,5 +1,6 @@
+
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -106,14 +107,60 @@
             font-size: 13px;
             text-decoration: none;
         }
+
+        .aprovacao {
+            display: none;
+            margin-top: 22px;
+            padding: 20px;
+            border-radius: 12px;
+            background: #f7f1ed;
+            text-align: center;
+        }
+
+        .aprovacao h2 {
+            color: #604735;
+            font-size: 19px;
+            margin: 0 0 10px;
+        }
+
+        .aprovacao p {
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .codigo {
+            margin: 18px 0;
+            padding: 15px;
+            background: white;
+            border: 1px dashed #b89572;
+            border-radius: 10px;
+            color: #604735;
+            font-size: 30px;
+            font-weight: 700;
+            letter-spacing: 7px;
+        }
+
+        .whatsapp {
+            background: #287a4b;
+            margin-top: 10px;
+        }
+
+        .aviso {
+            font-size: 12px !important;
+            color: #887d76;
+        }
     </style>
 </head>
 
 <body>
 
 <div class="cadastro">
+
     <h1>Beauty<span>Book</span></h1>
-    <p class="subtitulo">Cadastre seu salão e comece a organizar seus atendimentos.</p>
+
+    <p class="subtitulo">
+        Cadastre seu salão e comece a organizar seus atendimentos.
+    </p>
 
     <form id="formCadastro">
 
@@ -146,9 +193,37 @@
         </button>
 
         <div id="mensagem" role="status"></div>
+
     </form>
 
+    <div class="aprovacao" id="areaAprovacao">
+
+        <h2>Conta criada!</h2>
+
+        <p>
+            Para solicitar a aprovação do seu salão,
+            envie o código abaixo pelo nosso WhatsApp.
+        </p>
+
+        <div class="codigo" id="codigoGerado"></div>
+
+        <p>
+            <strong>Validade: 30 minutos.</strong>
+        </p>
+
+        <button type="button" class="whatsapp" id="btnWhatsApp">
+            Enviar código pelo WhatsApp
+        </button>
+
+        <p class="aviso">
+            O envio da mensagem é manual. Nossa equipe
+            verificará seus dados e realizará a aprovação.
+        </p>
+
+    </div>
+
     <a class="voltar" href="index.html">Voltar ao início</a>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -159,17 +234,38 @@ const form = document.getElementById("formCadastro");
 const mensagem = document.getElementById("mensagem");
 const botao = document.getElementById("btnCadastrar");
 
+const areaAprovacao = document.getElementById("areaAprovacao");
+const codigoGerado = document.getElementById("codigoGerado");
+const btnWhatsApp = document.getElementById("btnWhatsApp");
+
+const WHATSAPP_APROVACAO = "5521988373685";
+
+let linkWhatsApp = "";
+
 form.addEventListener("submit", async function(event) {
+
     event.preventDefault();
 
-    const nomeSalao = document.getElementById("nomeSalao").value.trim();
-    const responsavel = document.getElementById("nomeResponsavel").value.trim();
-    const telefone = document.getElementById("telefone").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const senha = document.getElementById("senha").value;
-    const confirmar = document.getElementById("confirmarSenha").value;
+    const nomeSalao =
+        document.getElementById("nomeSalao").value.trim();
+
+    const responsavel =
+        document.getElementById("nomeResponsavel").value.trim();
+
+    const telefone =
+        document.getElementById("telefone").value.trim();
+
+    const email =
+        document.getElementById("email").value.trim();
+
+    const senha =
+        document.getElementById("senha").value;
+
+    const confirmar =
+        document.getElementById("confirmarSenha").value;
 
     mensagem.textContent = "";
+    mensagem.style.color = "#a04465";
 
     if (senha !== confirmar) {
         mensagem.textContent = "As senhas não são iguais.";
@@ -177,7 +273,8 @@ form.addEventListener("submit", async function(event) {
     }
 
     if (senha.length < 8) {
-        mensagem.textContent = "A senha precisa ter pelo menos 8 caracteres.";
+        mensagem.textContent =
+            "A senha precisa ter pelo menos 8 caracteres.";
         return;
     }
 
@@ -185,6 +282,9 @@ form.addEventListener("submit", async function(event) {
     botao.textContent = "Criando sua conta...";
 
     try {
+
+        // 1. Criar conta no Supabase Auth.
+
         const { data, error } =
             await window.beautybookSupabase.auth.signUp({
                 email: email,
@@ -202,36 +302,89 @@ form.addEventListener("submit", async function(event) {
 
         if (!data.session) {
             throw new Error(
-                "Conta criada, mas sem sessão. Confira a configuração de confirmação de e-mail."
+                "A conta foi criada, mas não foi possível iniciar a sessão. Confira a configuração do Supabase."
             );
         }
 
-        const { data: empresaId, error: erroCadastro } =
-            await window.beautybookSupabase.rpc(
-                "finalizar_cadastro_beautybook"
+        // 2. Solicitar código à Edge Function.
+
+        const { data: solicitacao, error: erroSolicitacao } =
+            await window.beautybookSupabase.functions.invoke(
+                "solicitar-cadastro",
+                {
+                    body: {
+                        nome_salao: nomeSalao,
+                        nome_responsavel: responsavel,
+                        telefone: telefone
+                    }
+                }
             );
 
-        if (erroCadastro) throw erroCadastro;
-
-        if (!empresaId) {
-            throw new Error("Não foi possível criar o salão.");
+        if (erroSolicitacao) {
+            throw erroSolicitacao;
         }
+
+        if (!solicitacao || !solicitacao.sucesso || !solicitacao.codigo) {
+            throw new Error(
+                solicitacao?.erro || "Não foi possível gerar o código."
+            );
+        }
+
+        // 3. Exibir código ao responsável.
+
+        codigoGerado.textContent = solicitacao.codigo;
+
+        // 4. Preparar mensagem para envio manual pelo WhatsApp.
+
+        const textoWhatsApp =
+            "SOLICITAÇÃO DE CADASTRO - BEAUTYBOOK\n\n" +
+            "Salão: " + nomeSalao + "\n" +
+            "Responsável: " + responsavel + "\n" +
+            "WhatsApp: " + telefone + "\n" +
+            "E-mail: " + email + "\n\n" +
+            "Código de aprovação: " + solicitacao.codigo + "\n\n" +
+            "Solicito a aprovação do meu cadastro no BeautyBook.";
+
+        linkWhatsApp =
+            "https://wa.me/" +
+            WHATSAPP_APROVACAO +
+            "?text=" +
+            encodeURIComponent(textoWhatsApp);
+
+        // 5. Mostrar área de aprovação.
+
+        form.style.display = "none";
+        areaAprovacao.style.display = "block";
 
         mensagem.style.color = "#287a4b";
         mensagem.textContent =
-            "Cadastro concluído! Seu teste de 15 dias começou.";
-
-        form.reset();
-        botao.textContent = "Cadastro concluído";
+            "Solicitação registrada com sucesso!";
 
     } catch (error) {
+
+        console.error("Erro no cadastro:", error);
+
         mensagem.style.color = "#a04465";
-        mensagem.textContent = "Atenção: " + error.message;
+        mensagem.textContent =
+            "Atenção: " +
+            (error.message || "Não foi possível concluir a solicitação.");
 
         botao.disabled = false;
         botao.textContent = "Criar minha conta";
     }
+
 });
+
+btnWhatsApp.addEventListener("click", function() {
+
+    if (!linkWhatsApp) {
+        return;
+    }
+
+    window.open(linkWhatsApp, "_blank", "noopener,noreferrer");
+
+});
+
 </script>
 
 </body>
