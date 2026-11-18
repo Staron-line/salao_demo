@@ -264,6 +264,59 @@ main {
     color: #176b37;
 }
 
+
+#meuEstabelecimento {
+    display: none;
+    margin-top: 24px;
+    padding: 25px;
+    background: var(--surface);
+    border-radius: 14px;
+    box-shadow: 0 5px 20px #00000010;
+}
+#meuEstabelecimento h2 { margin-top: 0; color: var(--primary); }
+.estabelecimento-descricao {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+.form-estabelecimento {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 15px;
+    margin-top: 18px;
+}
+.campo-estabelecimento {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+.campo-estabelecimento label {
+    font-size: 13px;
+    font-weight: bold;
+}
+.campo-estabelecimento input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d8cec5;
+    border-radius: 8px;
+    font: inherit;
+    color: #604735;
+    background: #fff;
+}
+.campo-estabelecimento input:focus {
+    outline: 2px solid var(--primary);
+    border-color: var(--primary);
+}
+.estabelecimento-acoes { margin-top: 18px; }
+#estabelecimentoAviso {
+    display: none;
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
 @media(max-width: 500px) {
     header h1 { font-size: 19px; }
     #aparencia { padding: 18px; }
@@ -285,6 +338,49 @@ main {
         <h2 id="nomeSalao">Carregando seu salão...</h2>
         <p id="emailUsuario">Verificando acesso...</p>
         <p id="tipoAcesso"></p>
+    </section>
+
+
+    <!-- DADOS CADASTRAIS DO ESTABELECIMENTO -->
+    <section id="meuEstabelecimento">
+        <h2>Meu estabelecimento</h2>
+        <p class="estabelecimento-descricao">
+            Atualize os dados do seu salão. As alterações serão salvas no cadastro
+            da empresa e ficarão disponíveis para a administração do BeautyBook.
+            O e-mail de contato não altera seu e-mail de acesso ao sistema.
+        </p>
+
+        <form id="formEstabelecimento">
+            <div class="form-estabelecimento">
+                <div class="campo-estabelecimento">
+                    <label for="estNomeSalao">Nome do estabelecimento</label>
+                    <input id="estNomeSalao" type="text" maxlength="150" required>
+                </div>
+                <div class="campo-estabelecimento">
+                    <label for="estResponsavel">Nome do responsável</label>
+                    <input id="estResponsavel" type="text" maxlength="150" required>
+                </div>
+                <div class="campo-estabelecimento">
+                    <label for="estTelefone">Telefone / WhatsApp</label>
+                    <input id="estTelefone" type="tel" maxlength="30">
+                </div>
+                <div class="campo-estabelecimento">
+                    <label for="estEmail">E-mail de contato</label>
+                    <input id="estEmail" type="email" maxlength="254" required>
+                </div>
+                <div class="campo-estabelecimento">
+                    <label for="estLogo">Endereço da imagem do logotipo (URL)</label>
+                    <input id="estLogo" type="url" maxlength="1000"
+                        placeholder="https://...">
+                </div>
+            </div>
+            <div class="estabelecimento-acoes">
+                <button class="btn-salvar" id="btnSalvarEstabelecimento" type="submit">
+                    Salvar dados cadastrais
+                </button>
+            </div>
+        </form>
+        <div id="estabelecimentoAviso" role="status"></div>
     </section>
 
     <!-- MÓDULOS ADMINISTRATIVOS -->
@@ -439,6 +535,11 @@ const aparencia = document.getElementById("aparencia");
 const aparenciaAviso = document.getElementById("aparenciaAviso");
 const btnSalvarPaleta = document.getElementById("btnSalvarPaleta");
 const estadoPaleta = document.getElementById("estadoPaleta");
+
+const meuEstabelecimento = document.getElementById("meuEstabelecimento");
+const formEstabelecimento = document.getElementById("formEstabelecimento");
+const estabelecimentoAviso = document.getElementById("estabelecimentoAviso");
+const btnSalvarEstabelecimento = document.getElementById("btnSalvarEstabelecimento");
 
 let empresaId = null;
 let paletaAtual = null;
@@ -666,6 +767,86 @@ async function salvarPaleta() {
     }
 }
 
+
+function mostrarAvisoEstabelecimento(texto, tipo = "erro") {
+    estabelecimentoAviso.textContent = texto;
+    estabelecimentoAviso.className =
+        tipo === "erro" ? "aviso-erro" : "aviso-sucesso";
+}
+
+async function carregarDadosEstabelecimento() {
+    const { data, error } = await bb
+        .from("empresas")
+        .select("nome_fantasia, nome_proprietario, telefone, email, logo_url")
+        .eq("id", empresaId)
+        .maybeSingle();
+
+    if (error) throw error;
+    if (!data) throw new Error("Não foi possível localizar os dados cadastrais.");
+
+    document.getElementById("estNomeSalao").value = data.nome_fantasia || "";
+    document.getElementById("estResponsavel").value = data.nome_proprietario || "";
+    document.getElementById("estTelefone").value = data.telefone || "";
+    document.getElementById("estEmail").value = data.email || "";
+    document.getElementById("estLogo").value = data.logo_url || "";
+}
+
+async function salvarDadosEstabelecimento(event) {
+    event.preventDefault();
+
+    if (!empresaId) {
+        mostrarAvisoEstabelecimento("Empresa não identificada. Atualize a página e tente novamente.");
+        return;
+    }
+
+    const dados = {
+        nome_fantasia: document.getElementById("estNomeSalao").value.trim(),
+        nome_proprietario: document.getElementById("estResponsavel").value.trim(),
+        telefone: document.getElementById("estTelefone").value.trim() || null,
+        email: document.getElementById("estEmail").value.trim() || null,
+        logo_url: document.getElementById("estLogo").value.trim() || null,
+        updated_at: new Date().toISOString()
+    };
+
+    if (!dados.nome_fantasia || !dados.nome_proprietario) {
+        mostrarAvisoEstabelecimento("Informe o nome do estabelecimento e o nome do responsável.");
+        return;
+    }
+
+    btnSalvarEstabelecimento.disabled = true;
+    btnSalvarEstabelecimento.textContent = "Salvando...";
+    estabelecimentoAviso.className = "";
+    estabelecimentoAviso.style.display = "none";
+
+    try {
+        const { data, error } = await bb
+            .from("empresas")
+            .update(dados)
+            .eq("id", empresaId)
+            .select("id, nome_fantasia, nome_proprietario, telefone, email, logo_url")
+            .maybeSingle();
+
+        if (error) throw error;
+
+        if (!data) {
+            throw new Error(
+                "Nenhum dado foi atualizado. Verifique se a conta tem permissão de proprietário para editar a empresa."
+            );
+        }
+
+        nomeSalao.textContent = data.nome_fantasia;
+        mostrarAvisoEstabelecimento(
+            "Dados cadastrais atualizados. O painel administrativo consultará essas mesmas informações.",
+            "sucesso"
+        );
+    } catch (error) {
+        mostrarAvisoEstabelecimento("Não foi possível salvar os dados: " + error.message);
+    } finally {
+        btnSalvarEstabelecimento.disabled = false;
+        btnSalvarEstabelecimento.textContent = "Salvar dados cadastrais";
+    }
+}
+
 async function carregarPainel() {
     try {
         if (!bb) {
@@ -710,7 +891,7 @@ async function carregarPainel() {
         const { data: empresa, error: erroEmpresa } =
             await bb
                 .from("empresas")
-                .select("nome_fantasia, nome_proprietario")
+                .select("nome_fantasia, nome_proprietario, telefone, email, logo_url")
                 .eq("id", empresaId)
                 .maybeSingle();
 
@@ -728,9 +909,12 @@ async function carregarPainel() {
         mensagem.style.display = "none";
 
         if (membro.papel === "proprietario") {
+            meuEstabelecimento.style.display = "block";
+            await carregarDadosEstabelecimento();
             aparencia.style.display = "block";
             await carregarAparencia();
         } else {
+            meuEstabelecimento.style.display = "none";
             aparencia.style.display = "none";
         }
 
@@ -739,6 +923,9 @@ async function carregarPainel() {
         nomeSalao.textContent = "Não foi possível carregar o salão.";
     }
 }
+
+// Atualização dos dados cadastrais
+formEstabelecimento.addEventListener("submit", salvarDadosEstabelecimento);
 
 // Seleção das paletas
 document.querySelectorAll(".paleta").forEach(botao => {
