@@ -1,0 +1,732 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BeautyBook | Administração da Plataforma</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f1ed;
+    color: #604735;
+}
+
+header {
+    background: #604735;
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 21px;
+}
+
+button {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-header {
+    background: #B89572;
+    color: white;
+    border: 0;
+    border-radius: 8px;
+    padding: 11px 16px;
+}
+
+main {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 0 18px;
+}
+
+.painel {
+    background: white;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 5px 20px #00000010;
+    margin-bottom: 20px;
+}
+
+h2 {
+    margin-top: 0;
+    color: #604735;
+}
+
+.descricao {
+    color: #77685d;
+    line-height: 1.5;
+}
+
+#loginArea {
+    max-width: 430px;
+    margin: 70px auto;
+}
+
+label {
+    display: block;
+    margin: 14px 0 6px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+input {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #d8c8ba;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+.btn-principal {
+    background: #604735;
+    color: white;
+    border: 0;
+    border-radius: 8px;
+    padding: 13px 20px;
+    margin-top: 15px;
+}
+
+.btn-principal:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.btn-secundario {
+    background: #B89572;
+    color: white;
+    border: 0;
+    border-radius: 7px;
+    padding: 10px 15px;
+}
+
+.btn-whatsapp {
+    display: inline-block;
+    background: #168b51;
+    color: white;
+    text-decoration: none;
+    border-radius: 7px;
+    padding: 10px 14px;
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+#mensagem {
+    display: none;
+    padding: 14px;
+    margin: 15px 0;
+    border-radius: 8px;
+    line-height: 1.5;
+}
+
+.erro {
+    display: block !important;
+    background: #ffe9e9;
+    color: #a32222;
+}
+
+.sucesso {
+    display: block !important;
+    background: #e5f8ec;
+    color: #176b37;
+}
+
+.topo-lista {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.solicitacao {
+    border: 1px solid #e6d9ce;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    background: #fffdfb;
+}
+
+.solicitacao h3 {
+    margin-top: 0;
+    color: #604735;
+}
+
+.dados {
+    color: #77685d;
+    font-size: 14px;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+.codigo-area {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f5f1ed;
+    border-radius: 9px;
+}
+
+.codigo-area input {
+    max-width: 230px;
+    letter-spacing: 5px;
+    font-weight: bold;
+    text-align: center;
+    font-size: 19px;
+}
+
+.vazio {
+    text-align: center;
+    color: #77685d;
+    padding: 30px 10px;
+}
+
+#adminArea {
+    display: none;
+}
+
+.rodape {
+    color: #998b80;
+    text-align: center;
+    font-size: 12px;
+    padding: 25px;
+}
+
+@media(max-width: 500px) {
+    header h1 {
+        font-size: 17px;
+    }
+
+    .painel {
+        padding: 18px;
+    }
+
+    .solicitacao {
+        padding: 15px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>BeautyBook | Administração da Plataforma</h1>
+    <button id="btnSair" class="btn-header" style="display:none">
+        Sair
+    </button>
+</header>
+
+<main>
+
+    <!-- LOGIN ADMINISTRATIVO -->
+
+    <section id="loginArea" class="painel">
+
+        <h2>Acesso administrativo</h2>
+
+        <p class="descricao">
+            Entre com sua conta autorizada para administrar o BeautyBook.
+        </p>
+
+        <form id="formLogin">
+
+            <label for="email">E-mail</label>
+            <input
+                type="email"
+                id="email"
+                autocomplete="username"
+                required
+            >
+
+            <label for="senha">Senha</label>
+            <input
+                type="password"
+                id="senha"
+                autocomplete="current-password"
+                required
+            >
+
+            <button type="submit" class="btn-principal" id="btnEntrar">
+                Entrar no painel
+            </button>
+
+        </form>
+
+        <div id="mensagemLogin" role="status"></div>
+
+    </section>
+
+
+    <!-- PAINEL ADMINISTRATIVO -->
+
+    <section id="adminArea">
+
+        <div class="painel">
+
+            <h2>Bem-vindo à administração</h2>
+
+            <p class="descricao">
+                Gerencie as solicitações de cadastro dos estabelecimentos
+                que desejam utilizar o BeautyBook.
+            </p>
+
+            <p id="emailAdmin"></p>
+
+        </div>
+
+        <div class="painel">
+
+            <div class="topo-lista">
+
+                <div>
+                    <h2>Cadastros pendentes</h2>
+                    <p class="descricao">
+                        Confira os dados e valide o código recebido pelo WhatsApp.
+                    </p>
+                </div>
+
+                <button
+                    class="btn-secundario"
+                    id="btnAtualizar"
+                    type="button"
+                >
+                    Atualizar lista
+                </button>
+
+            </div>
+
+            <div id="mensagem" role="status"></div>
+
+            <div id="listaSolicitacoes">
+                <p class="vazio">Carregando solicitações...</p>
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+<div class="rodape">
+    BeautyBook — Administração da Plataforma
+</div>
+
+
+<script>
+const bb = window.beautybookSupabase;
+
+const loginArea = document.getElementById("loginArea");
+const adminArea = document.getElementById("adminArea");
+const btnSair = document.getElementById("btnSair");
+const btnEntrar = document.getElementById("btnEntrar");
+const btnAtualizar = document.getElementById("btnAtualizar");
+
+const mensagemLogin = document.getElementById("mensagemLogin");
+const mensagem = document.getElementById("mensagem");
+const listaSolicitacoes = document.getElementById("listaSolicitacoes");
+
+let usuarioAdmin = null;
+
+
+// EXIBIR MENSAGENS
+
+function mostrarMensagem(elemento, texto, tipo = "erro") {
+    elemento.textContent = texto;
+    elemento.className = tipo;
+}
+
+function limparMensagem(elemento) {
+    elemento.textContent = "";
+    elemento.className = "";
+}
+
+
+// FORMATAR DATA
+
+function formatarData(data) {
+    if (!data) return "Não informada";
+
+    return new Date(data).toLocaleString("pt-BR", {
+        dateStyle: "short",
+        timeStyle: "short"
+    });
+}
+
+
+// LOGIN
+
+async function entrar(event) {
+    event.preventDefault();
+
+    limparMensagem(mensagemLogin);
+
+    btnEntrar.disabled = true;
+    btnEntrar.textContent = "Verificando...";
+
+    try {
+        const email = document.getElementById("email").value.trim();
+        const senha = document.getElementById("senha").value;
+
+        const { data, error } = await bb.auth.signInWithPassword({
+            email,
+            password: senha
+        });
+
+        if (error) throw error;
+
+        usuarioAdmin = data.user;
+
+        await carregarAdministracao();
+
+    } catch (error) {
+        mostrarMensagem(
+            mensagemLogin,
+            "Não foi possível entrar: " + error.message
+        );
+    } finally {
+        btnEntrar.disabled = false;
+        btnEntrar.textContent = "Entrar no painel";
+    }
+}
+
+
+// VERIFICAR AUTORIZAÇÃO E CARREGAR PAINEL
+
+async function carregarAdministracao() {
+
+    const { data, error } = await bb.auth.getSession();
+
+    if (error) throw error;
+
+    const sessao = data.session;
+
+    if (!sessao) {
+        loginArea.style.display = "block";
+        adminArea.style.display = "none";
+        btnSair.style.display = "none";
+        return;
+    }
+
+    usuarioAdmin = sessao.user;
+
+    loginArea.style.display = "none";
+    adminArea.style.display = "block";
+    btnSair.style.display = "block";
+
+    document.getElementById("emailAdmin").textContent =
+        "Administrador conectado: " + usuarioAdmin.email;
+
+    await carregarSolicitacoes();
+}
+
+
+// CONSULTAR SOLICITAÇÕES PELA EDGE FUNCTION
+
+async function carregarSolicitacoes() {
+
+    listaSolicitacoes.innerHTML =
+        '<p class="vazio">Consultando cadastros...</p>';
+
+    limparMensagem(mensagem);
+
+    btnAtualizar.disabled = true;
+
+    try {
+
+        const { data, error } = await bb.functions.invoke(
+            "listar-cadastros-pendentes",
+            {
+                body: {}
+            }
+        );
+
+        if (error) throw error;
+
+        if (!data || !data.sucesso) {
+            throw new Error(
+                data?.erro || "Não foi possível consultar os cadastros."
+            );
+        }
+
+        renderizarSolicitacoes(data.solicitacoes || []);
+
+    } catch (error) {
+
+        listaSolicitacoes.innerHTML = "";
+
+        mostrarMensagem(
+            mensagem,
+            "Erro ao consultar solicitações: " + error.message
+        );
+
+    } finally {
+        btnAtualizar.disabled = false;
+    }
+}
+
+
+// MOSTRAR SOLICITAÇÕES
+
+function renderizarSolicitacoes(solicitacoes) {
+
+    listaSolicitacoes.innerHTML = "";
+
+    if (!solicitacoes.length) {
+
+        listaSolicitacoes.innerHTML = `
+            <div class="vazio">
+                <h3>Nenhum cadastro pendente</h3>
+                <p>Quando um salão solicitar cadastro, ele aparecerá aqui.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+    solicitacoes.forEach(solicitacao => {
+
+        const card = document.createElement("article");
+        card.className = "solicitacao";
+
+        const titulo = document.createElement("h3");
+        titulo.textContent = solicitacao.nome_salao;
+
+        const dados = document.createElement("div");
+        dados.className = "dados";
+
+        const campos = [
+            ["Responsável", solicitacao.nome_responsavel],
+            ["WhatsApp", solicitacao.telefone],
+            ["E-mail", solicitacao.email],
+            ["Solicitado em", formatarData(solicitacao.criado_em)],
+            ["Código válido até", formatarData(solicitacao.codigo_expira_em)],
+            ["Tentativas utilizadas", solicitacao.tentativas + " de 5"]
+        ];
+
+        campos.forEach(([rotulo, valor]) => {
+            const linha = document.createElement("div");
+            const forte = document.createElement("strong");
+
+            forte.textContent = rotulo + ": ";
+
+            linha.appendChild(forte);
+            linha.appendChild(
+                document.createTextNode(valor || "Não informado")
+            );
+
+            dados.appendChild(linha);
+        });
+
+        // BOTÃO WHATSAPP
+
+        const whatsapp = document.createElement("a");
+
+        const telefone = String(
+            solicitacao.telefone || ""
+        ).replace(/\D/g, "");
+
+        whatsapp.href = "https://wa.me/" + telefone;
+        whatsapp.target = "_blank";
+        whatsapp.rel = "noopener noreferrer";
+        whatsapp.className = "btn-whatsapp";
+        whatsapp.textContent = "Abrir conversa no WhatsApp";
+
+        // CAMPO DO CÓDIGO
+
+        const codigoArea = document.createElement("div");
+        codigoArea.className = "codigo-area";
+
+        const label = document.createElement("label");
+        label.textContent = "Código de aprovação recebido:";
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.inputMode = "numeric";
+        input.maxLength = 6;
+        input.placeholder = "000000";
+        input.autocomplete = "off";
+
+        input.addEventListener("input", () => {
+            input.value = input.value.replace(/\D/g, "").slice(0, 6);
+        });
+
+        const botao = document.createElement("button");
+        botao.type = "button";
+        botao.className = "btn-principal";
+        botao.textContent = "Validar e aprovar";
+
+        botao.addEventListener("click", async () => {
+            await aprovarSolicitacao(
+                solicitacao.id,
+                input,
+                botao
+            );
+        });
+
+        codigoArea.appendChild(label);
+        codigoArea.appendChild(input);
+        codigoArea.appendChild(document.createElement("br"));
+        codigoArea.appendChild(botao);
+
+        card.appendChild(titulo);
+        card.appendChild(dados);
+        card.appendChild(whatsapp);
+        card.appendChild(codigoArea);
+
+        listaSolicitacoes.appendChild(card);
+
+    });
+}
+
+
+// APROVAR SOLICITAÇÃO
+
+async function aprovarSolicitacao(id, input, botao) {
+
+    const codigo = input.value.trim();
+
+    if (!/^[0-9]{6}$/.test(codigo)) {
+        mostrarMensagem(
+            mensagem,
+            "Digite o código completo de seis números."
+        );
+        return;
+    }
+
+    if (!confirm(
+        "Confirma que verificou o remetente do WhatsApp e deseja aprovar este cadastro?"
+    )) {
+        return;
+    }
+
+    botao.disabled = true;
+    botao.textContent = "Validando...";
+
+    limparMensagem(mensagem);
+
+    try {
+
+        const { data, error } = await bb.functions.invoke(
+            "aprovar-cadastro",
+            {
+                body: {
+                    solicitacao_id: id,
+                    codigo: codigo
+                }
+            }
+        );
+
+        if (error) throw error;
+
+        if (!data || !data.sucesso) {
+            throw new Error(
+                data?.erro || "Não foi possível aprovar o cadastro."
+            );
+        }
+
+        mostrarMensagem(
+            mensagem,
+            "Solicitação aprovada! O proprietário poderá finalizar o cadastro.",
+            "sucesso"
+        );
+
+        await carregarSolicitacoes();
+
+    } catch (error) {
+
+        mostrarMensagem(
+            mensagem,
+            "Falha na aprovação: " + error.message
+        );
+
+        botao.disabled = false;
+        botao.textContent = "Validar e aprovar";
+    }
+}
+
+
+// SAIR
+
+async function sair() {
+
+    const { error } = await bb.auth.signOut();
+
+    if (error) {
+        mostrarMensagem(mensagem, "Erro ao sair: " + error.message);
+        return;
+    }
+
+    usuarioAdmin = null;
+
+    adminArea.style.display = "none";
+    btnSair.style.display = "none";
+    loginArea.style.display = "block";
+
+    document.getElementById("formLogin").reset();
+    limparMensagem(mensagemLogin);
+}
+
+
+// EVENTOS
+
+document.getElementById("formLogin").addEventListener(
+    "submit",
+    entrar
+);
+
+btnAtualizar.addEventListener(
+    "click",
+    carregarSolicitacoes
+);
+
+btnSair.addEventListener(
+    "click",
+    sair
+);
+
+
+// INICIALIZAÇÃO
+
+(async function iniciar() {
+
+    if (!bb) {
+        mostrarMensagem(
+            mensagemLogin,
+            "Não foi possível conectar ao Supabase. Verifique o supabase-config.js."
+        );
+        return;
+    }
+
+    try {
+        await carregarAdministracao();
+    } catch (error) {
+        mostrarMensagem(
+            mensagemLogin,
+            "Erro ao iniciar painel: " + error.message
+        );
+    }
+
+})();
+
+</script>
+
+</body>
+</html>
