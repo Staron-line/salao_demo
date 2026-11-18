@@ -341,6 +341,14 @@ main {
     </section>
 
 
+    <!-- BOTÃO PARA ABRIR/FECHAR OS DADOS CADASTRAIS -->
+    <div id="areaEditarEstabelecimento" style="display:none; margin-top:24px;">
+        <button class="btn-salvar" id="btnEditarEstabelecimento"
+            type="button" aria-expanded="false" aria-controls="meuEstabelecimento">
+            Editar cadastro
+        </button>
+    </div>
+
     <!-- DADOS CADASTRAIS DO ESTABELECIMENTO -->
     <section id="meuEstabelecimento">
         <h2>Meu estabelecimento</h2>
@@ -537,6 +545,8 @@ const btnSalvarPaleta = document.getElementById("btnSalvarPaleta");
 const estadoPaleta = document.getElementById("estadoPaleta");
 
 const meuEstabelecimento = document.getElementById("meuEstabelecimento");
+const areaEditarEstabelecimento = document.getElementById("areaEditarEstabelecimento");
+const btnEditarEstabelecimento = document.getElementById("btnEditarEstabelecimento");
 const formEstabelecimento = document.getElementById("formEstabelecimento");
 const estabelecimentoAviso = document.getElementById("estabelecimentoAviso");
 const btnSalvarEstabelecimento = document.getElementById("btnSalvarEstabelecimento");
@@ -909,11 +919,15 @@ async function carregarPainel() {
         mensagem.style.display = "none";
 
         if (membro.papel === "proprietario") {
-            meuEstabelecimento.style.display = "block";
+            areaEditarEstabelecimento.style.display = "block";
+            meuEstabelecimento.style.display = "none";
+            btnEditarEstabelecimento.textContent = "Editar cadastro";
+            btnEditarEstabelecimento.setAttribute("aria-expanded", "false");
             await carregarDadosEstabelecimento();
             aparencia.style.display = "block";
             await carregarAparencia();
         } else {
+            areaEditarEstabelecimento.style.display = "none";
             meuEstabelecimento.style.display = "none";
             aparencia.style.display = "none";
         }
@@ -923,6 +937,20 @@ async function carregarPainel() {
         nomeSalao.textContent = "Não foi possível carregar o salão.";
     }
 }
+
+// Abrir e fechar o formulário de dados cadastrais
+btnEditarEstabelecimento.addEventListener("click", () => {
+    const estaAberto = meuEstabelecimento.style.display === "block";
+
+    meuEstabelecimento.style.display = estaAberto ? "none" : "block";
+    btnEditarEstabelecimento.textContent = estaAberto
+        ? "Editar cadastro"
+        : "Fechar cadastro";
+    btnEditarEstabelecimento.setAttribute(
+        "aria-expanded",
+        estaAberto ? "false" : "true"
+    );
+});
 
 // Atualização dos dados cadastrais
 formEstabelecimento.addEventListener("submit", salvarDadosEstabelecimento);
