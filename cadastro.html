@@ -1,113 +1,245 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro | BeautyBook</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * { box-sizing: border-box; }
-        body {
-            margin: 0; padding: 25px 15px; min-height: 100vh;
-            display: flex; align-items: center; justify-content: center;
-            background: #f7f1ed; font-family: Poppins, sans-serif; color: #493b35;
-        }
-        .cadastro {
-            width: 100%; max-width: 470px; padding: 32px; background: white;
-            border-radius: 18px; box-shadow: 0 12px 40px #60473518;
-        }
-        h1 { text-align: center; color: #604735; margin: 0; font-size: 30px; }
-        h1 span { color: #b89572; }
-        .subtitulo { text-align: center; color: #887d76; font-size: 14px; margin: 5px 0 25px; }
-        label { display: block; font-size: 13px; font-weight: 600; margin: 13px 0 5px; }
-        input {
-            width: 100%; padding: 12px; border: 1px solid #e5dcd5;
-            border-radius: 9px; font-family: inherit; font-size: 14px; outline: none;
-        }
-        input:focus { border-color: #b89572; }
-        button {
-            width: 100%; padding: 14px; margin-top: 22px; border: none;
-            border-radius: 9px; background: #604735; color: white;
-            font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
-        }
-        button:disabled { opacity: .6; cursor: wait; }
-        #mensagem, #statusAprovacao {
-            margin-top: 17px; font-size: 13px; text-align: center; line-height: 1.6;
-        }
-        .voltar {
-            display: block; text-align: center; margin-top: 20px;
-            color: #80644f; font-size: 13px; text-decoration: none;
-        }
-        .aprovacao {
-            display: none; margin-top: 22px; padding: 20px;
-            border-radius: 12px; background: #f7f1ed; text-align: center;
-        }
-        .aprovacao h2 { color: #604735; font-size: 19px; margin: 0 0 10px; }
-        .aprovacao p { font-size: 13px; line-height: 1.6; }
-        .codigo {
-            margin: 18px 0; padding: 15px; background: white;
-            border: 1px dashed #b89572; border-radius: 10px;
-            color: #604735; font-size: 30px; font-weight: 700; letter-spacing: 7px;
-        }
-        .whatsapp { background: #287a4b; margin-top: 10px; }
-        .verificar { background: #80644f; margin-top: 10px; }
-        .aviso { font-size: 12px !important; color: #887d76; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastro | BeautyBook</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    padding: 25px 15px;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f7f1ed;
+    font-family: Poppins, sans-serif;
+    color: #493b35;
+}
+
+.cadastro {
+    width: 100%;
+    max-width: 470px;
+    padding: 32px;
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 12px 40px #60473518;
+}
+
+h1 {
+    text-align: center;
+    color: #604735;
+    margin: 0;
+    font-size: 30px;
+}
+
+h1 span { color: #b89572; }
+
+.subtitulo {
+    text-align: center;
+    color: #887d76;
+    font-size: 14px;
+    margin: 5px 0 25px;
+}
+
+label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 13px 0 5px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e5dcd5;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+}
+
+input:focus { border-color: #b89572; }
+
+button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 22px;
+    border: none;
+    border-radius: 9px;
+    background: #604735;
+    color: white;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+#mensagem, #statusAprovacao {
+    margin-top: 17px;
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.voltar {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #80644f;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.aprovacao {
+    display: none;
+    margin-top: 22px;
+    padding: 20px;
+    border-radius: 12px;
+    background: #f7f1ed;
+    text-align: center;
+}
+
+.aprovacao h2 {
+    color: #604735;
+    font-size: 19px;
+    margin: 0 0 10px;
+}
+
+.aprovacao p {
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.codigo {
+    margin: 18px 0;
+    padding: 15px;
+    background: white;
+    border: 1px dashed #b89572;
+    border-radius: 10px;
+    color: #604735;
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: 7px;
+}
+
+.whatsapp { background: #287a4b; margin-top: 10px; }
+.verificar { background: #80644f; margin-top: 10px; }
+
+.aviso {
+    font-size: 12px !important;
+    color: #887d76;
+}
+</style>
 </head>
+
 <body>
+
 <div class="cadastro">
+
     <h1>Beauty<span>Book</span></h1>
-    <p class="subtitulo">Cadastre seu salão e comece a organizar seus atendimentos.</p>
+
+    <p class="subtitulo">
+        Cadastre seu salão e comece a organizar seus atendimentos.
+    </p>
 
     <form id="formCadastro">
+
         <label for="nomeSalao">Nome do salão</label>
-        <input id="nomeSalao" type="text" required maxlength="100" placeholder="Ex.: Studio Beleza">
+        <input id="nomeSalao" type="text" required maxlength="100"
+        placeholder="Ex.: Studio Beleza">
 
         <label for="nomeResponsavel">Nome do responsável</label>
-        <input id="nomeResponsavel" type="text" required maxlength="100" placeholder="Seu nome completo">
+        <input id="nomeResponsavel" type="text" required maxlength="100"
+        placeholder="Seu nome completo">
 
         <label for="telefone">WhatsApp</label>
-        <input id="telefone" type="tel" required maxlength="20" placeholder="(21) 99999-9999">
+        <input id="telefone" type="tel" required maxlength="20"
+        placeholder="(21) 99999-9999">
 
         <label for="email">E-mail</label>
-        <input id="email" type="email" required placeholder="seuemail@exemplo.com">
+        <input id="email" type="email" required
+        placeholder="seuemail@exemplo.com">
 
-        <label for="senha">Crie uma senha</label>
-        <input id="senha" type="password" required minlength="8" placeholder="Mínimo de 8 caracteres">
+        <label for="senha">Crie uma senha ou informe sua senha de acesso</label>
+        <input id="senha" type="password" required minlength="8"
+        placeholder="Mínimo de 8 caracteres">
 
         <label for="confirmarSenha">Confirme sua senha</label>
-        <input id="confirmarSenha" type="password" required minlength="8" placeholder="Digite a senha novamente">
+        <input id="confirmarSenha" type="password" required minlength="8"
+        placeholder="Digite a senha novamente">
 
-        <button type="submit" id="btnCadastrar">Criar minha conta</button>
+        <button type="submit" id="btnCadastrar">
+            Criar minha conta
+        </button>
+
         <div id="mensagem" role="status"></div>
+
     </form>
 
     <div class="aprovacao" id="areaAprovacao">
-        <h2>Solicitação enviada!</h2>
-        <p>Envie o código abaixo pelo WhatsApp. Depois que a equipe aprovar seu cadastro, o BeautyBook concluirá a configuração da sua empresa automaticamente.</p>
+
+        <h2>Solicitação de cadastro</h2>
+
+        <p id="textoAprovacao">
+            Acompanhe a aprovação do seu cadastro.
+        </p>
+
         <div class="codigo" id="codigoGerado"></div>
-        <p><strong>Validade do código: 30 minutos.</strong></p>
-        <button type="button" class="whatsapp" id="btnWhatsApp">Enviar código pelo WhatsApp</button>
-        <button type="button" class="verificar" id="btnVerificar">Verificar aprovação</button>
-        <div id="statusAprovacao" role="status">Aguardando aprovação da equipe. Esta página verificará automaticamente a cada 15 segundos.</div>
-        <p class="aviso">Mantenha esta página aberta. Você também pode clicar em “Verificar aprovação”.</p>
+
+        <p id="validadeCodigo">
+            Validade do código: 30 minutos.
+        </p>
+
+        <button type="button" class="whatsapp" id="btnWhatsApp">
+            Enviar código pelo WhatsApp
+        </button>
+
+        <button type="button" class="verificar" id="btnVerificar">
+            Verificar aprovação
+        </button>
+
+        <div id="statusAprovacao" role="status">
+            Aguardando aprovação da equipe.
+        </div>
+
+        <p class="aviso">
+            Mantenha esta página aberta para acompanhar a aprovação.
+        </p>
+
     </div>
+
     <a class="voltar" href="index.html">Voltar ao início</a>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
+
 <script>
 const bb = window.beautybookSupabase;
+
 const form = document.getElementById("formCadastro");
 const mensagem = document.getElementById("mensagem");
 const botao = document.getElementById("btnCadastrar");
+
 const areaAprovacao = document.getElementById("areaAprovacao");
 const codigoGerado = document.getElementById("codigoGerado");
 const btnWhatsApp = document.getElementById("btnWhatsApp");
 const btnVerificar = document.getElementById("btnVerificar");
 
 const WHATSAPP_APROVACAO = "5521988373685";
+
 let linkWhatsApp = "";
 let verificacaoAutomatica = null;
 let finalizando = false;
@@ -119,153 +251,429 @@ function mostrarStatus(texto, cor = "#80644f") {
     status.style.color = cor;
 }
 
+function exibirAreaAprovacao() {
+    form.style.display = "none";
+    areaAprovacao.style.display = "block";
+}
+
+function iniciarVerificacaoAutomatica() {
+    if (verificacaoAutomatica) {
+        clearInterval(verificacaoAutomatica);
+    }
+
+    verificacaoAutomatica = setInterval(
+        verificarAprovacao,
+        15000
+    );
+}
+
+async function obterSessao(email, senha) {
+
+    const { data: sessaoAtual, error: erroSessao } =
+        await bb.auth.getSession();
+
+    if (erroSessao) throw erroSessao;
+
+    if (sessaoAtual.session) {
+
+        const emailSessao =
+            (sessaoAtual.session.user.email || "").toLowerCase();
+
+        if (emailSessao !== email.toLowerCase()) {
+            throw new Error(
+                "Existe outra conta conectada neste navegador. " +
+                "Saia dessa conta antes de continuar com o e-mail informado."
+            );
+        }
+
+        return sessaoAtual.session;
+    }
+
+    // Primeiro tenta criar uma conta nova.
+    const { data: cadastro, error: erroCadastro } =
+        await bb.auth.signUp({
+            email: email,
+            password: senha,
+            options: {
+                data: {
+                    nome_salao: document.getElementById("nomeSalao").value.trim(),
+                    nome_responsavel: document.getElementById("nomeResponsavel").value.trim(),
+                    telefone: document.getElementById("telefone").value.trim()
+                }
+            }
+        });
+
+    if (erroCadastro) {
+
+        // Se a conta já existir, tenta autenticar.
+        const textoErro = (erroCadastro.message || "").toLowerCase();
+
+        const contaExistente =
+            textoErro.includes("already registered") ||
+            textoErro.includes("already been registered") ||
+            textoErro.includes("user already exists") ||
+            textoErro.includes("already exists");
+
+        if (!contaExistente) {
+            throw erroCadastro;
+        }
+
+    } else if (cadastro.session) {
+
+        return cadastro.session;
+    }
+
+    // Recupera a sessão da conta existente ou recém-criada.
+    const { data: login, error: erroLogin } =
+        await bb.auth.signInWithPassword({
+            email: email,
+            password: senha
+        });
+
+    if (erroLogin) {
+        throw new Error(
+            "Não foi possível entrar com esse e-mail e senha. " +
+            "Confira seus dados e tente novamente. " +
+            "Se necessário, utilize a recuperação de senha."
+        );
+    }
+
+    if (!login.session) {
+        throw new Error("Não foi possível iniciar sua sessão.");
+    }
+
+    return login.session;
+}
+
 async function finalizarCadastro() {
+
     if (finalizando) return;
+
     finalizando = true;
-    if (verificacaoAutomatica) clearInterval(verificacaoAutomatica);
+
+    if (verificacaoAutomatica) {
+        clearInterval(verificacaoAutomatica);
+    }
+
     btnVerificar.disabled = true;
     btnVerificar.textContent = "Finalizando cadastro...";
-    mostrarStatus("Cadastro aprovado! Estamos configurando sua empresa...", "#287a4b");
+
+    mostrarStatus(
+        "Cadastro aprovado! Estamos configurando sua empresa...",
+        "#287a4b"
+    );
 
     try {
-        const { data, error } = await bb.rpc("finalizar_cadastro_beautybook");
-        if (error) throw error;
-        if (!data) throw new Error("A função não retornou a identificação da empresa.");
 
-        mostrarStatus("Cadastro concluído! Redirecionando para seu painel...", "#287a4b");
+        const { data, error } =
+            await bb.rpc("finalizar_cadastro_beautybook");
+
+        if (error) throw error;
+
+        if (!data) {
+            throw new Error(
+                "A função não retornou a identificação da empresa."
+            );
+        }
+
+        mostrarStatus(
+            "Cadastro concluído! Redirecionando para seu painel...",
+            "#287a4b"
+        );
+
         window.location.replace("painel.html");
+
     } catch (error) {
+
         console.error("Erro ao finalizar cadastro:", error);
+
         finalizando = false;
+
         btnVerificar.disabled = false;
         btnVerificar.textContent = "Tentar finalizar novamente";
-        mostrarStatus("A aprovação foi identificada, mas não foi possível concluir a criação da empresa: " + (error.message || "erro desconhecido") + ". Clique para tentar novamente ou entre em contato com o suporte.", "#a04465");
+
+        mostrarStatus(
+            "A aprovação foi identificada, mas não foi possível concluir " +
+            "a criação da empresa: " +
+            (error.message || "erro desconhecido") +
+            ". Clique para tentar novamente ou entre em contato com o suporte.",
+            "#a04465"
+        );
     }
 }
 
 async function verificarAprovacao() {
-    // Impede que o intervalo e o botão manual façam consultas simultâneas.
-    if (finalizando || verificando) return;
-    verificando = true;
 
+    if (finalizando || verificando) return;
+
+    verificando = true;
     btnVerificar.disabled = true;
+
     try {
-        // Esta Edge Function consulta a solicitação usando o usuário autenticado.
-        const { data, error } = await bb.functions.invoke("consultar-status-cadastro");
+
+        const { data, error } =
+            await bb.functions.invoke("consultar-status-cadastro");
+
         if (error) throw error;
 
         if (!data || !data.status) {
-            throw new Error(data?.erro || "Não foi possível consultar o status.");
+            throw new Error(
+                data?.erro || "Não foi possível consultar o status."
+            );
         }
 
         if (data.status === "aprovada") {
+
             await finalizarCadastro();
+
         } else if (data.status === "pendente") {
-            mostrarStatus("Ainda aguardando aprovação da equipe. A próxima verificação será automática.");
+
+            mostrarStatus(
+                "Sua solicitação está registrada e aguarda aprovação. " +
+                "A próxima verificação será automática."
+            );
+
         } else if (data.status === "rejeitada") {
-            if (verificacaoAutomatica) clearInterval(verificacaoAutomatica);
-            mostrarStatus("A solicitação não foi aprovada. Entre em contato com o suporte pelo WhatsApp.", "#a04465");
+
+            if (verificacaoAutomatica) {
+                clearInterval(verificacaoAutomatica);
+            }
+
+            mostrarStatus(
+                "A solicitação não foi aprovada. Entre em contato com o suporte pelo WhatsApp.",
+                "#a04465"
+            );
+
         } else if (data.status === "expirada") {
-            if (verificacaoAutomatica) clearInterval(verificacaoAutomatica);
-            mostrarStatus("O prazo da solicitação expirou. Entre em contato com o suporte para receber orientação.", "#a04465");
+
+            if (verificacaoAutomatica) {
+                clearInterval(verificacaoAutomatica);
+            }
+
+            mostrarStatus(
+                "O prazo da solicitação expirou. Entre em contato com o suporte para receber orientação.",
+                "#a04465"
+            );
+
         } else {
-            mostrarStatus("Status recebido: " + data.status + ". Se precisar, entre em contato com o suporte.");
+
+            mostrarStatus(
+                "Status recebido: " + data.status
+            );
         }
+
     } catch (error) {
+
         console.error("Erro ao verificar aprovação:", error);
-        mostrarStatus("Não foi possível verificar agora: " + (error.message || "erro desconhecido") + ". Tentaremos novamente.", "#a04465");
+
+        mostrarStatus(
+            "Não foi possível verificar agora. Tentaremos novamente.",
+            "#a04465"
+        );
+
     } finally {
+
         verificando = false;
-        if (!finalizando) btnVerificar.disabled = false;
+
+        if (!finalizando) {
+            btnVerificar.disabled = false;
+        }
     }
 }
 
+async function criarSolicitacao(dados) {
+
+    const { data, error } =
+        await bb.functions.invoke("solicitar-cadastro", {
+            body: {
+                nome_salao: dados.nomeSalao,
+                nome_responsavel: dados.responsavel,
+                telefone: dados.telefone
+            }
+        });
+
+    if (error) throw error;
+
+    if (!data || !data.sucesso || !data.codigo) {
+        throw new Error(
+            data?.erro || "Não foi possível gerar o código de aprovação."
+        );
+    }
+
+    codigoGerado.textContent = data.codigo;
+
+    const textoWhatsApp =
+        "SOLICITAÇÃO DE CADASTRO - BEAUTYBOOK\n\n" +
+        "Salão: " + dados.nomeSalao + "\n" +
+        "Responsável: " + dados.responsavel + "\n" +
+        "WhatsApp: " + dados.telefone + "\n" +
+        "E-mail: " + dados.email + "\n\n" +
+        "Código de aprovação: " + data.codigo + "\n\n" +
+        "Solicito a aprovação do meu cadastro no BeautyBook.";
+
+    linkWhatsApp =
+        "https://wa.me/" +
+        WHATSAPP_APROVACAO +
+        "?text=" +
+        encodeURIComponent(textoWhatsApp);
+
+    btnWhatsApp.style.display = "block";
+    codigoGerado.style.display = "block";
+
+    document.getElementById("validadeCodigo").style.display = "block";
+
+    document.getElementById("textoAprovacao").textContent =
+        "Envie o código abaixo pelo WhatsApp. Depois da aprovação, " +
+        "sua empresa será configurada automaticamente.";
+
+    exibirAreaAprovacao();
+
+    mostrarStatus(
+        "Solicitação registrada! Aguardando aprovação da equipe."
+    );
+
+    await verificarAprovacao();
+
+    iniciarVerificacaoAutomatica();
+}
+
+async function continuarSolicitacao(dados) {
+
+    // Primeiro verifica se já existe uma solicitação.
+    const { data, error } =
+        await bb.functions.invoke("consultar-status-cadastro");
+
+    if (!error && data && data.status) {
+
+        exibirAreaAprovacao();
+
+        if (data.status === "aprovada") {
+
+            codigoGerado.style.display = "none";
+            btnWhatsApp.style.display = "none";
+            document.getElementById("validadeCodigo").style.display = "none";
+
+            await finalizarCadastro();
+            return;
+        }
+
+        if (data.status === "pendente") {
+
+            codigoGerado.style.display = "none";
+            btnWhatsApp.style.display = "none";
+            document.getElementById("validadeCodigo").style.display = "none";
+
+            document.getElementById("textoAprovacao").textContent =
+                "Já existe uma solicitação registrada para esta conta. " +
+                "Não é necessário criar outra.";
+
+            mostrarStatus(
+                "Aguardando aprovação. Se você ainda não enviou o código, " +
+                "entre em contato com o suporte pelo WhatsApp."
+            );
+
+            iniciarVerificacaoAutomatica();
+            return;
+        }
+
+        if (
+            data.status === "expirada" ||
+            data.status === "rejeitada"
+        ) {
+
+            // Uma nova solicitação poderá ser criada.
+            await criarSolicitacao(dados);
+            return;
+        }
+
+        throw new Error(
+            "Sua solicitação possui um status que precisa ser verificado pelo suporte."
+        );
+    }
+
+    // Se não existe solicitação, cria uma nova.
+    // Erros diferentes de 404 não devem ser ignorados.
+    const statusHttp = error?.context?.status;
+
+    if (error && statusHttp !== 404) {
+        throw error;
+    }
+
+    await criarSolicitacao(dados);
+}
+
 form.addEventListener("submit", async function(event) {
+
     event.preventDefault();
 
-    const nomeSalao = document.getElementById("nomeSalao").value.trim();
-    const responsavel = document.getElementById("nomeResponsavel").value.trim();
-    const telefone = document.getElementById("telefone").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const senha = document.getElementById("senha").value;
-    const confirmar = document.getElementById("confirmarSenha").value;
+    const dados = {
+        nomeSalao: document.getElementById("nomeSalao").value.trim(),
+        responsavel: document.getElementById("nomeResponsavel").value.trim(),
+        telefone: document.getElementById("telefone").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        senha: document.getElementById("senha").value,
+        confirmar: document.getElementById("confirmarSenha").value
+    };
 
     mensagem.textContent = "";
     mensagem.style.color = "#a04465";
 
-    if (senha !== confirmar) {
+    if (dados.senha !== dados.confirmar) {
         mensagem.textContent = "As senhas não são iguais.";
         return;
     }
-    if (senha.length < 8) {
-        mensagem.textContent = "A senha precisa ter pelo menos 8 caracteres.";
+
+    if (dados.senha.length < 8) {
+        mensagem.textContent =
+            "A senha precisa ter pelo menos 8 caracteres.";
         return;
     }
+
     if (!bb) {
-        mensagem.textContent = "Não foi possível carregar a conexão com o Supabase.";
+        mensagem.textContent =
+            "Não foi possível carregar a conexão com o Supabase.";
         return;
     }
 
     botao.disabled = true;
-    botao.textContent = "Criando sua conta...";
+    botao.textContent = "Verificando seus dados...";
 
     try {
-        const { data, error } = await bb.auth.signUp({
-            email,
-            password: senha,
-            options: { data: { nome_salao: nomeSalao, nome_responsavel: responsavel, telefone } }
-        });
-        if (error) throw error;
 
-        if (!data.session) {
-            throw new Error("A conta foi criada, mas não foi possível iniciar a sessão. Confira a configuração do Supabase.");
-        }
+        await obterSessao(dados.email, dados.senha);
 
-        const { data: solicitacao, error: erroSolicitacao } =
-            await bb.functions.invoke("solicitar-cadastro", {
-                body: { nome_salao: nomeSalao, nome_responsavel: responsavel, telefone }
-            });
+        botao.textContent = "Verificando solicitação...";
 
-        if (erroSolicitacao) throw erroSolicitacao;
-        if (!solicitacao || !solicitacao.sucesso || !solicitacao.codigo) {
-            throw new Error(solicitacao?.erro || "Não foi possível gerar o código.");
-        }
-
-        codigoGerado.textContent = solicitacao.codigo;
-
-        const textoWhatsApp =
-            "SOLICITAÇÃO DE CADASTRO - BEAUTYBOOK\n\n" +
-            "Salão: " + nomeSalao + "\n" +
-            "Responsável: " + responsavel + "\n" +
-            "WhatsApp: " + telefone + "\n" +
-            "E-mail: " + email + "\n\n" +
-            "Código de aprovação: " + solicitacao.codigo + "\n\n" +
-            "Solicito a aprovação do meu cadastro no BeautyBook.";
-
-        linkWhatsApp = "https://wa.me/" + WHATSAPP_APROVACAO + "?text=" + encodeURIComponent(textoWhatsApp);
-
-        form.style.display = "none";
-        areaAprovacao.style.display = "block";
-        mensagem.style.color = "#287a4b";
-        mensagem.textContent = "Solicitação registrada com sucesso!";
-
-        // Primeira consulta e, depois, consultas automáticas a cada 15 segundos.
-        await verificarAprovacao();
-        verificacaoAutomatica = setInterval(verificarAprovacao, 15000);
+        await continuarSolicitacao(dados);
 
     } catch (error) {
+
         console.error("Erro no cadastro:", error);
+
         mensagem.style.color = "#a04465";
-        mensagem.textContent = "Atenção: " + (error.message || "Não foi possível concluir a solicitação.");
+
+        mensagem.textContent =
+            error.message ||
+            "Não foi possível continuar o cadastro.";
+
         botao.disabled = false;
         botao.textContent = "Criar minha conta";
     }
 });
 
 btnWhatsApp.addEventListener("click", function() {
-    if (linkWhatsApp) window.open(linkWhatsApp, "_blank", "noopener,noreferrer");
+
+    if (linkWhatsApp) {
+        window.open(
+            linkWhatsApp,
+            "_blank",
+            "noopener,noreferrer"
+        );
+    }
 });
+
 btnVerificar.addEventListener("click", verificarAprovacao);
+
 </script>
 </body>
 </html>
