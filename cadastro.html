@@ -111,6 +111,7 @@ const WHATSAPP_APROVACAO = "5521988373685";
 let linkWhatsApp = "";
 let verificacaoAutomatica = null;
 let finalizando = false;
+let verificando = false;
 
 function mostrarStatus(texto, cor = "#80644f") {
     const status = document.getElementById("statusAprovacao");
@@ -143,7 +144,9 @@ async function finalizarCadastro() {
 }
 
 async function verificarAprovacao() {
-    if (finalizando) return;
+    // Impede que o intervalo e o botão manual façam consultas simultâneas.
+    if (finalizando || verificando) return;
+    verificando = true;
 
     btnVerificar.disabled = true;
     try {
@@ -172,6 +175,7 @@ async function verificarAprovacao() {
         console.error("Erro ao verificar aprovação:", error);
         mostrarStatus("Não foi possível verificar agora: " + (error.message || "erro desconhecido") + ". Tentaremos novamente.", "#a04465");
     } finally {
+        verificando = false;
         if (!finalizando) btnVerificar.disabled = false;
     }
 }
